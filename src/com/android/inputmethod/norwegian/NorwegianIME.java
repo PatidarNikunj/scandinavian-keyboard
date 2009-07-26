@@ -70,6 +70,7 @@ public class NorwegianIME extends InputMethodService
     private static final String PREF_DICTIONARY_MANUALLY = "dictionary_manually";
     private static final String PREF_DICTIONARY = "dictionary";
     private static final String PREF_VIBRATE_ON = "vibrate_on";
+    private static final String PREF_VIBRATE_DURATION = "vibration_duration";
     private static final String PREF_SOUND_ON = "sound_on";
     private static final String PREF_AUTO_CAP = "auto_cap";
     private static final String PREF_QUICK_FIXES = "quick_fixes";
@@ -1051,17 +1052,21 @@ public class NorwegianIME extends InputMethodService
     private void loadSettings() {
         // Get the settings preferences
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        mVibrateOn = sp.getBoolean(PREF_VIBRATE_ON, false);
+        mVibrateOn = sp.getBoolean(PREF_VIBRATE_ON, true);
+        try {
+            mVibrateDuration = Integer.parseInt(sp.getString(PREF_VIBRATE_DURATION, Integer.toString(getResources().getInteger(R.integer.vibrate_duration_ms))));
+        } catch(NumberFormatException nfe) {
+            mVibrateDuration = getResources().getInteger(R.integer.vibrate_duration_ms);
+        }
         mSoundOn = sp.getBoolean(PREF_SOUND_ON, false);
         mAutoCap = sp.getBoolean(PREF_AUTO_CAP, true);
         
-        String keyboardLayout = sp.getString(PREF_KEYBOARD_LAYOUT, "0");
-        mKeyboardLayout = Integer.parseInt(keyboardLayout);
+        mKeyboardLayout = Integer.parseInt(sp.getString(PREF_KEYBOARD_LAYOUT, "0"));
         mDictionaryManually = sp.getBoolean(PREF_DICTIONARY_MANUALLY, false);
         String dictionary = sp.getString(PREF_DICTIONARY, "0");
         mDictionary = Integer.parseInt(dictionary);
         
-        mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, true);
+        mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, false);
         // If there is no auto text data, then quickfix is forced to "on", so that the other options
         // will continue to work
         if (AutoText.getSize(mInputView) < 1) mQuickFixes = true;

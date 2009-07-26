@@ -28,11 +28,14 @@
     <!-- Option to play back sound on keypress in soft keyboard -->
     <string name="sound_on_keypress">Sound on keypress</string>
     
+    <string name="help">Help &amp; about</string>
+    <string name="vibration_duration">Vibration duration</string>
     <string name="keyboard_layout">Keyboard layout</string>
     <string name="preferences_keyboard_layout_list_default_value">0</string>
     <string name="language_category">Language settings</string>
     <string name="dictionary_manually">Choose dictionary</string>
-    <string name="dictionary_manually_summary">Choose dictionary manually</string>
+    <string name="dictionary_manually_summary_unchecked">Dictionary language is same as layout</string>
+    <string name="dictionary_manually_summary_checked">Dictionary language is set manually</string>
     <string name="dictionary">Dictionary language</string>
     
     <!-- Option to enable using nearby keys when correcting/predicting -->
@@ -192,4 +195,46 @@
     <string name="label_alpha_key">ABC</string>
     <!-- Label for ALT modifier key.  Must be short to fit on key! -->
     <string name="label_alt_key">ALT</string>
+    
+    <string name="help_text">
+To activate the keyboard go to Settings -&gt; Locale &amp; Text, and check Scandinavian keyboard.&lt;br&gt;
+To use it, long-press at an input field, select input method and select this keyboard.&lt;br&gt;
+Press the back-button to close it.&lt;br&gt;
+Long-press the ?123 button to open settings.&lt;br&gt;
+To use a dictionary, search for &lt;a href=\"market://search?q=Scandinavian keyboard\"&gt;Scandinavian keyboard at Market&lt;/a&gt; or select &lt;a href=\'market://search?q=pub:\"Trygve Aaberge\"\'&gt;view more applications&lt;/a&gt; when viewing this app in Market, and install the dictionary you want.&lt;br&gt;
+&lt;br&gt;
+Report bugs or contact:&lt;br&gt;
+&lt;a href=\"mailto:trygveaa@gmail.com\"&gt;trygveaa@gmail.com&lt;/a&gt;&lt;br&gt;
+Homepage:&lt;br&gt;
+&lt;a href=\"http://code.google.com/p/scandinavian-keyboard/\"&gt;http://code.google.com/p/scandinavian-keyboard/&lt;/a&gt;&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;b&gt;Changelog&lt;/b&gt;&lt;br&gt;
+&lt;br&gt;
+1.3.1&lt;br&gt;
+· Possible to choose vibration duration&lt;br&gt;
+· Included help and changelog in settings&lt;br&gt;
+· Only shows installed dictionaries in choose dictionary list&lt;br&gt;
+· Changed the smiley button to a newline button&lt;br&gt;
+&lt;br&gt;
+1.3.0&lt;br&gt;
+· Support for HTC\'s Magic build (except support for user dictionary in Magic)&lt;br&gt;
+. Support for choosing dictionary language independently of keyboard layout&lt;br&gt;
+· Added .dk, .no and .se as popup for .com&lt;br&gt;
+· Added Icelandic popup characters at d, t, æ and ø.&lt;br&gt;
+&lt;br&gt;
+1.2.1&lt;br&gt;
+· Bugfix&lt;br&gt;
+&lt;br&gt;
+1.2.0&lt;br&gt;
+· Support for external dictionaries&lt;br&gt;
+· Ability to activate suggestions while quick fixes is deactivated&lt;br&gt;
+&lt;br&gt;
+1.1.0&lt;br&gt;
+· Added support for Swedish and Danish layouts&lt;br&gt;
+· Changed name to Scandinavian Keyboard and changed icon&lt;br&gt;
+&lt;br&gt;
+1.0.0&lt;br&gt;
+· Release of Norwegian Keyboard
+</string>
 </resources>

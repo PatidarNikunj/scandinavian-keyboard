@@ -18,10 +18,23 @@
         android:title="@string/english_ime_settings"
         android:key="english_ime_settings">
 
+    <Preference
+            android:key="help"
+            android:title="@string/help"
+            />
+
     <CheckBoxPreference
             android:key="vibrate_on"
             android:title="@string/vibrate_on_keypress"
             android:persistent="true"
+            android:defaultValue="true"
+            />
+
+    <EditTextPreference
+            android:key="vibration_duration"
+            android:title="@string/vibration_duration"
+            android:persistent="true"
+            android:defaultValue="@integer/vibrate_duration_ms"
             />
 
     <CheckBoxPreference
@@ -46,13 +59,15 @@
             android:title="@string/keyboard_layout"
             android:entries="@array/keyboard_layouts"
             android:entryValues="@array/keyboard_layouts_values"
+            android:persistent="true"
             android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
             />
 
         <CheckBoxPreference
             android:key="dictionary_manually"
             android:title="@string/dictionary_manually"
-            android:summary="@string/dictionary_manually_summary"
+            android:summaryOff="@string/dictionary_manually_summary_unchecked"
+            android:summaryOn="@string/dictionary_manually_summary_checked"
             android:persistent="true"
             android:defaultValue="false"
             />
@@ -63,6 +78,7 @@
             android:entries="@array/keyboard_layouts"
             android:entryValues="@array/keyboard_layouts_values"
             android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
+            android:persistent="true"
             android:dependency="dictionary_manually"
             />
 
@@ -77,7 +93,7 @@
             android:title="@string/quick_fixes"
             android:summary="@string/quick_fixes_summary"
             android:persistent="true"
-            android:defaultValue="true"
+            android:defaultValue="false"
             />
 
         <CheckBoxPreference

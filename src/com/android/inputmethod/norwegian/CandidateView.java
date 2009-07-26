@@ -477,9 +477,17 @@ public class CandidateView extends View {
     }
     
     private void longPressFirstWord() {
-        CharSequence word = mSuggestions.get(0);
-        if (mService.addWordToDictionary(word.toString())) {
-            showPreview(0, getContext().getResources().getString(R.string.added_word, word));
+        if(mService.getUserDictionaryActive())
+        {
+            CharSequence word = mSuggestions.get(0);
+            if (mService.addWordToDictionary(word.toString())) {
+                showPreview(0, getContext().getResources().getString(R.string.added_word, word));
+            }
+        }
+        else
+        {
+            showPreview(0, " ");
+            showPreview(0, "Sorry, user dictionary is not yet supported in this build");
         }
     }
     

@@ -23,13 +23,17 @@
     <!-- Title for Latin keyboard settings activity / dialog -->
     <string name="english_ime_settings">Scandinavian keyboard settings</string>
 
-    <string name="keyboard_layout">Keyboard layout</string>
-    <string name="preferences_keyboard_layout_list_default_value">0</string>
-
     <!-- Option to provide vibrate/haptic feedback on keypress -->
     <string name="vibrate_on_keypress">Vibrate on keypress</string>
     <!-- Option to play back sound on keypress in soft keyboard -->
     <string name="sound_on_keypress">Sound on keypress</string>
+    
+    <string name="keyboard_layout">Keyboard layout</string>
+    <string name="preferences_keyboard_layout_list_default_value">0</string>
+    <string name="language_category">Language settings</string>
+    <string name="dictionary_manually">Choose dictionary</string>
+    <string name="dictionary_manually_summary">Choose dictionary manually</string>
+    <string name="dictionary">Dictionary language</string>
     
     <!-- Option to enable using nearby keys when correcting/predicting -->
     <string name="hit_correction">Correct typing errors</string>
@@ -130,6 +134,11 @@
     <string name="alternates_for_y">ýÿ</string>
     <!-- Accented forms of "z" -->
     <string name="alternates_for_z"></string>
+    
+    <string name="alternates_for_d">ð</string>
+    <string name="alternates_for_t">þ</string>
+    <string name="alternates_for_ae">ǽ</string>
+    <string name="alternates_for_oe">ǿ</string>    
     
     <!-- Tip to long press on keys -->
     <string name="tip_long_press">Hold a key down to see accents (ø, ö, etc.)</string>

@@ -18,14 +18,6 @@
         android:title="@string/english_ime_settings"
         android:key="english_ime_settings">
 
-    <ListPreference
-            android:key="keyboard_layout"
-            android:title="@string/keyboard_layout"
-            android:entries="@array/keyboard_layouts"
-            android:entryValues="@array/keyboard_layouts_values"
-            android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
-            />
-
     <CheckBoxPreference
             android:key="vibrate_on"
             android:title="@string/vibrate_on_keypress"
@@ -44,6 +36,37 @@
             android:persistent="true"
             android:defaultValue="true"
             />
+            
+    <PreferenceCategory
+            android:title="@string/language_category"
+            android:key="language_settings">
+
+        <ListPreference
+            android:key="keyboard_layout"
+            android:title="@string/keyboard_layout"
+            android:entries="@array/keyboard_layouts"
+            android:entryValues="@array/keyboard_layouts_values"
+            android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
+            />
+
+        <CheckBoxPreference
+            android:key="dictionary_manually"
+            android:title="@string/dictionary_manually"
+            android:summary="@string/dictionary_manually_summary"
+            android:persistent="true"
+            android:defaultValue="false"
+            />
+
+        <ListPreference
+            android:key="dictionary"
+            android:title="@string/dictionary"
+            android:entries="@array/keyboard_layouts"
+            android:entryValues="@array/keyboard_layouts_values"
+            android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
+            android:dependency="dictionary_manually"
+            />
+
+    </PreferenceCategory>
 
     <PreferenceCategory
             android:title="@string/prediction_category"

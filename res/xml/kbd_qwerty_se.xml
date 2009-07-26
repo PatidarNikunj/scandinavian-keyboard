@@ -76,8 +76,13 @@
         <Key android:codes="106" android:keyLabel="j"/>
         <Key android:codes="107" android:keyLabel="k"/>
         <Key android:codes="108" android:keyLabel="l"/>
-        <Key android:codes="246" android:keyLabel="ö"/>
-        <Key android:codes="228" android:keyLabel="ä" android:keyEdgeFlags="right"/>
+        <Key android:codes="246" android:keyLabel="ö"
+                android:popupKeyboard="@xml/kbd_popup_template"
+                android:popupCharacters="@string/alternates_for_oe"/>
+        <Key android:codes="228" android:keyLabel="ä"
+                android:popupKeyboard="@xml/kbd_popup_template"
+                android:popupCharacters="@string/alternates_for_ae"
+                android:keyEdgeFlags="right"/>
     </Row>
     
     <Row>

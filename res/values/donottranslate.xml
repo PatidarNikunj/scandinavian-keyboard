@@ -23,9 +23,9 @@
     <!-- Symbols that are sentence separators, for purposes of making it hug the last sentence. -->
     <string name="sentence_separators">.,;:!?</string>
     <!-- Accented characters related to "d" -->
-    <string name="alternates_for_d"></string>
+    <!--<string name="alternates_for_d"></string>-->
     <!-- Accented characters related to "r" -->
     <string name="alternates_for_r"></string>
     <!-- Accented characters related to "t" -->
-    <string name="alternates_for_t"></string>
+    <!--<string name="alternates_for_t"></string>-->
 </resources>

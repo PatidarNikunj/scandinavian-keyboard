@@ -67,6 +67,8 @@ public class NorwegianIME extends InputMethodService
     static final boolean TRACE = false;
     
     private static final String PREF_KEYBOARD_LAYOUT = "keyboard_layout";
+    private static final String PREF_DICTIONARY_MANUALLY = "dictionary_manually";
+    private static final String PREF_DICTIONARY = "dictionary";
     private static final String PREF_VIBRATE_ON = "vibrate_on";
     private static final String PREF_SOUND_ON = "sound_on";
     private static final String PREF_AUTO_CAP = "auto_cap";
@@ -114,6 +116,8 @@ public class NorwegianIME extends InputMethodService
     private boolean mAutoCorrectOn;
     private boolean mCapsLock;
     private int mKeyboardLayout;
+    private boolean mDictionaryManually;
+    private int mDictionary;
     private boolean mVibrateOn;
     private boolean mSoundOn;
     private boolean mAutoCap;
@@ -141,6 +145,9 @@ public class NorwegianIME extends InputMethodService
     
     private String pkgNameLast;
     private int resIdLast;
+    
+    private boolean mUserDictionaryActive;
+    public boolean getUserDictionaryActive() { return mUserDictionaryActive; }
     
     Handler mHandler = new Handler() {
         @Override
@@ -181,14 +188,18 @@ public class NorwegianIME extends InputMethodService
     }
     
     private void initSuggest(String locale, boolean doAll) {
+        int dictionary;
+        if(mDictionaryManually) dictionary = mDictionary;
+        else dictionary = mKeyboardLayout;
+        
         String pkgName;
         int resId = 0x7f030000;
-        if(mKeyboardLayout == 1) pkgName = "com.android.inputmethod.norwegian.danishdictionary";
-        else if(mKeyboardLayout == 2) {
+        if(dictionary == 1) pkgName = "com.android.inputmethod.norwegian.danishdictionary";
+        else if(dictionary == 2) {
             pkgName = "com.android.inputmethod.latin";
             resId = 0x7f050000;
         }
-        else if(mKeyboardLayout == 3) pkgName = "com.android.inputmethod.norwegian.swedishdictionary";
+        else if(dictionary == 3) pkgName = "com.android.inputmethod.norwegian.swedishdictionary";
         else pkgName = "com.android.inputmethod.norwegian.norwegiandictionary";
 
         if(doAll || pkgName != pkgNameLast) {
@@ -205,6 +216,7 @@ public class NorwegianIME extends InputMethodService
                 mSuggest = new Suggest(this, res, resId); //(this, R.raw.main);
                 mSuggest.setCorrectionMode(mCorrectionMode, mQuickFixes);
                 mUserDictionary = new UserDictionary(this);
+                mUserDictionaryActive = mUserDictionary.getActive();
                 mSuggest.setUserDictionary(mUserDictionary);
                 mWordSeparators = getResources().getString(R.string.word_separators);
                 mSentenceSeparators = getResources().getString(R.string.sentence_separators);
@@ -1039,11 +1051,16 @@ public class NorwegianIME extends InputMethodService
     private void loadSettings() {
         // Get the settings preferences
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String keyboardLayout = sp.getString(PREF_KEYBOARD_LAYOUT, "0");
-        mKeyboardLayout = Integer.parseInt(keyboardLayout);
         mVibrateOn = sp.getBoolean(PREF_VIBRATE_ON, false);
         mSoundOn = sp.getBoolean(PREF_SOUND_ON, false);
         mAutoCap = sp.getBoolean(PREF_AUTO_CAP, true);
+        
+        String keyboardLayout = sp.getString(PREF_KEYBOARD_LAYOUT, "0");
+        mKeyboardLayout = Integer.parseInt(keyboardLayout);
+        mDictionaryManually = sp.getBoolean(PREF_DICTIONARY_MANUALLY, false);
+        String dictionary = sp.getString(PREF_DICTIONARY, "0");
+        mDictionary = Integer.parseInt(dictionary);
+        
         mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, true);
         // If there is no auto text data, then quickfix is forced to "on", so that the other options
         // will continue to work

@@ -60,6 +60,9 @@ public class UserDictionary extends Dictionary {
     
     private boolean mRequiresReload;
     
+    private boolean mActive;
+    public boolean getActive() { return mActive; }
+    
     public UserDictionary(Context context) {
         mContext = context;
         // Perform a managed query. The Activity will handle closing and requerying the cursor
@@ -73,7 +76,7 @@ public class UserDictionary extends Dictionary {
             }
         });
 
-        loadDictionary();
+        mActive = loadDictionary();
     }
     
     public synchronized void close() {
@@ -83,12 +86,15 @@ public class UserDictionary extends Dictionary {
         }
     }
     
-    private synchronized void loadDictionary() {
+    private synchronized boolean loadDictionary() {
         Cursor cursor = mContext.getContentResolver()
                 .query(Words.CONTENT_URI, PROJECTION, "(locale IS NULL) or (locale=?)", 
                         new String[] { Locale.getDefault().toString() }, null);
-        addWords(cursor);
         mRequiresReload = false;
+        if(addWords(cursor))
+            return true;
+        else
+            return false;
     }
 
     /**
@@ -246,22 +252,27 @@ public class UserDictionary extends Dictionary {
         }
     }
 
-    private void addWords(Cursor cursor) {
+    private boolean addWords(Cursor cursor) {
         mRoots = new ArrayList<Node>();
         
-        if (cursor.moveToFirst()) {
-            while (!cursor.isAfterLast()) {
-                String word = cursor.getString(INDEX_WORD);
-                int frequency = cursor.getInt(INDEX_FREQUENCY);
-                // Safeguard against adding really long words. Stack may overflow due
-                // to recursion
-                if (word.length() < MAX_WORD_LENGTH) {
-                    addWordRec(mRoots, word, 0, frequency);
+        if(cursor != null)
+        {
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    String word = cursor.getString(INDEX_WORD);
+                    int frequency = cursor.getInt(INDEX_FREQUENCY);
+                    // Safeguard against adding really long words. Stack may overflow due
+                    // to recursion
+                    if (word.length() < MAX_WORD_LENGTH) {
+                        addWordRec(mRoots, word, 0, frequency);
+                    }
+                    cursor.moveToNext();
                 }
-                cursor.moveToNext();
             }
-        }
-        cursor.close();
+            cursor.close();
+            return true;
+        } else
+            return false;
     }
     
     private void addWordRec(List<Node> children, final String word, 

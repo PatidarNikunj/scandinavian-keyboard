@@ -25,10 +25,16 @@
     android:keyHeight="@dimen/key_height"
     >
 
-    <Row android:rowEdgeFlags="top|bottom">
+    <Row android:rowEdgeFlags="top">
         <Key android:keyLabel=".net" android:keyOutputText=".net" android:keyEdgeFlags="left" />
         <Key android:keyLabel=".org" android:keyOutputText=".org"/>
         <Key android:keyLabel=".gov" android:keyOutputText=".gov"/>
         <Key android:keyLabel=".tv" android:keyOutputText=".tv" android:keyEdgeFlags="right" />
+    </Row>
+    
+    <Row android:rowEdgeFlags="bottom">
+        <Key android:keyLabel=".dk" android:keyOutputText=".dk" android:keyEdgeFlags="left" />
+        <Key android:keyLabel=".no" android:keyOutputText=".no"/>
+        <Key android:keyLabel=".se" android:keyOutputText=".se" android:keyEdgeFlags="right" />
     </Row>
 </Keyboard>

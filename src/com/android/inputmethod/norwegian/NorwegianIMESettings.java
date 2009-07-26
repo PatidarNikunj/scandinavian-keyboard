@@ -22,14 +22,24 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.text.AutoText;
 
+import android.preference.ListPreference;
+import android.content.res.Resources;
+import android.content.pm.PackageManager.NameNotFoundException;
+import java.lang.CharSequence;
+import java.util.ArrayList;
+
 public class NorwegianIMESettings extends PreferenceActivity {
     
     private static final String QUICK_FIXES_KEY = "quick_fixes";
     private static final String SHOW_SUGGESTIONS_KEY = "show_suggestions";
     private static final String PREDICTION_SETTINGS_KEY = "prediction_settings";
+    //private static final String DICTIONARY_MANUALLY = "dictionary_manually";
+    private static final String DICTIONARY = "dictionary";
     
     private CheckBoxPreference mQuickFixes;
     private CheckBoxPreference mShowSuggestions;
+    //private CheckBoxPreference mDictionaryManually;
+    private ListPreference mDictionary;
     
     @Override
     protected void onCreate(Bundle icicle) {
@@ -37,6 +47,9 @@ public class NorwegianIMESettings extends PreferenceActivity {
         addPreferencesFromResource(R.xml.prefs);
         mQuickFixes = (CheckBoxPreference) findPreference(QUICK_FIXES_KEY);
         mShowSuggestions = (CheckBoxPreference) findPreference(SHOW_SUGGESTIONS_KEY);
+        
+        //mDictionaryManually = (CheckBoxPreference) findPreference(DICTIONARY_MANUALLY);
+        mDictionary = (ListPreference) findPreference(DICTIONARY);
     }
 
     @Override
@@ -49,5 +62,26 @@ public class NorwegianIMESettings extends PreferenceActivity {
         } else {
             //mShowSuggestions.setDependency(QUICK_FIXES_KEY);
         }
+        
+        /*String[] pkgNames = { "com.android.inputmethod.norwegian.norwegiandictionary", "com.android.inputmethod.norwegian.danishdictionary", "com.android.inputmethod.latin", "com.android.inputmethod.norwegian.swedishdictionary" };
+        ArrayList foundList = new ArrayList();
+        CharSequence[] entries = mDictionary.getEntries();
+        CharSequence[] entryValues = mDictionary.getEntryValues();
+        for( int i = 0; i < pkgNames.length; i++) {
+            Resources res;
+            try {
+                res = getPackageManager().getResourcesForApplication(pkgNames[i]);
+                foundList.add(i);
+            } catch(NameNotFoundException notFound) {
+                foundList.remove(i);
+            }
+        }
+        int[] found = (int[]) foundList.toArray(); /// error
+        CharSequence[] newEntries = new CharSequence[found.length];
+        CharSequence[] newEntryValues = new CharSequence[found.length];
+        for(int i = 0; i < found.length; i++) {
+            newEntries[i] = entries[found[i]];
+            newEntryValues[i] = entryValues[found[i]];
+        }*/
     }
 }

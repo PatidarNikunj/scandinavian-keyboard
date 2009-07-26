@@ -62,6 +62,7 @@ public class NorwegianIME extends InputMethodService
     static final boolean DEBUG = false;
     static final boolean TRACE = false;
     
+    private static final String PREF_KEYBOARD_LAYOUT = "keyboard_layout";
     private static final String PREF_VIBRATE_ON = "vibrate_on";
     private static final String PREF_SOUND_ON = "sound_on";
     private static final String PREF_AUTO_CAP = "auto_cap";
@@ -108,6 +109,7 @@ public class NorwegianIME extends InputMethodService
     private boolean mAutoSpace;
     private boolean mAutoCorrectOn;
     private boolean mCapsLock;
+    private int mKeyboardLayout;
     private boolean mVibrateOn;
     private boolean mSoundOn;
     private boolean mAutoCap;
@@ -199,6 +201,7 @@ public class NorwegianIME extends InputMethodService
         mKeyboardSwitcher.setInputView(mInputView);
         mKeyboardSwitcher.makeKeyboards();
         mInputView.setOnKeyboardActionListener(this);
+        mKeyboardSwitcher.setKeyboardLayout(mKeyboardLayout);
         mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_TEXT, 0);
         return mInputView;
     }
@@ -221,6 +224,9 @@ public class NorwegianIME extends InputMethodService
         if (mInputView == null) {
             return;
         }
+
+        loadSettings();
+        mKeyboardSwitcher.setKeyboardLayout(mKeyboardLayout);
 
         mKeyboardSwitcher.makeKeyboards();
         
@@ -997,6 +1003,8 @@ public class NorwegianIME extends InputMethodService
     private void loadSettings() {
         // Get the settings preferences
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String keyboardLayout = sp.getString(PREF_KEYBOARD_LAYOUT, "0");
+        mKeyboardLayout = Integer.parseInt(keyboardLayout);
         mVibrateOn = sp.getBoolean(PREF_VIBRATE_ON, false);
         mSoundOn = sp.getBoolean(PREF_SOUND_ON, false);
         mAutoCap = sp.getBoolean(PREF_AUTO_CAP, true);
@@ -1070,6 +1078,7 @@ public class NorwegianIME extends InputMethodService
         p.println("  TextEntryState.state=" + TextEntryState.getState());
         p.println("  mSoundOn=" + mSoundOn);
         p.println("  mVibrateOn=" + mVibrateOn);
+        p.println("  mKeyboardLayout=" + mKeyboardLayout);
     }
 
     // Characters per second measurement

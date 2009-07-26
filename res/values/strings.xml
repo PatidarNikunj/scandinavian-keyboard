@@ -19,9 +19,12 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Title for Latin keyboard  -->
-    <string name="english_ime_name">Norwegian keyboard</string>
+    <string name="english_ime_name">Scandinavian keyboard</string>
     <!-- Title for Latin keyboard settings activity / dialog -->
-    <string name="english_ime_settings">Norwegian keyboard settings</string>
+    <string name="english_ime_settings">Scandinavian keyboard settings</string>
+
+    <string name="keyboard_layout">Keyboard layout</string>
+    <string name="preferences_keyboard_layout_list_default_value">0</string>
 
     <!-- Option to provide vibrate/haptic feedback on keypress -->
     <string name="vibrate_on_keypress">Vibrate on keypress</string>

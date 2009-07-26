@@ -38,6 +38,7 @@ public class KeyboardSwitcher {
     public static final int KEYBOARDMODE_EMAIL = R.id.mode_email;
     public static final int KEYBOARDMODE_IM = R.id.mode_im;
     
+    private int mKeyboardLayout;
 
     NorwegianKeyboardView mInputView;
     NorwegianIME mContext;
@@ -89,7 +90,17 @@ public class KeyboardSwitcher {
         mSymbolsShiftedKeyboard = null;
     }
 
+    void setKeyboardLayout(int keyboardLayout) {
+        mKeyboardLayout = keyboardLayout;
+    }
+
     void setKeyboardMode(int mode, int imeOptions) {
+        int kbd_layout;
+        if(mKeyboardLayout == 1) kbd_layout = R.xml.kbd_qwerty_dk;
+        else if(mKeyboardLayout == 2) kbd_layout = R.xml.kbd_qwerty_en;
+        else if(mKeyboardLayout == 3) kbd_layout = R.xml.kbd_qwerty_se;
+        else kbd_layout = R.xml.kbd_qwerty_no;
+
         mMode = mode;
         mImeOptions = imeOptions;
         NorwegianKeyboard keyboard = (NorwegianKeyboard) mInputView.getKeyboard();
@@ -98,7 +109,7 @@ public class KeyboardSwitcher {
             case MODE_TEXT:
                 if (mTextMode == MODE_TEXT_QWERTY) {
                     if (mQwertyKeyboard == null) {
-                        mQwertyKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_qwerty,
+                        mQwertyKeyboard = new NorwegianKeyboard(mContext, kbd_layout,
                                 KEYBOARDMODE_NORMAL);
                         mQwertyKeyboard.enableShiftLock();
                     }
@@ -134,21 +145,21 @@ public class KeyboardSwitcher {
                 break;
             case MODE_URL:
                 if (mUrlKeyboard == null) {
-                    mUrlKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_qwerty, KEYBOARDMODE_URL);
+                    mUrlKeyboard = new NorwegianKeyboard(mContext, kbd_layout, KEYBOARDMODE_URL);
                     mUrlKeyboard.enableShiftLock();
                 }
                 keyboard = mUrlKeyboard;
                 break;
             case MODE_EMAIL:
                 if (mEmailKeyboard == null) {
-                    mEmailKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_qwerty, KEYBOARDMODE_EMAIL);
+                    mEmailKeyboard = new NorwegianKeyboard(mContext, kbd_layout, KEYBOARDMODE_EMAIL);
                     mEmailKeyboard.enableShiftLock();
                 }
                 keyboard = mEmailKeyboard;
                 break;
             case MODE_IM:
                 if (mIMKeyboard == null) {
-                    mIMKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_qwerty, KEYBOARDMODE_IM);
+                    mIMKeyboard = new NorwegianKeyboard(mContext, kbd_layout, KEYBOARDMODE_IM);
                     mIMKeyboard.enableShiftLock();
                 }
                 keyboard = mIMKeyboard;

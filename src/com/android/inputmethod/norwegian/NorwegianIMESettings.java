@@ -47,7 +47,7 @@ public class NorwegianIMESettings extends PreferenceActivity {
             ((PreferenceGroup) findPreference(PREDICTION_SETTINGS_KEY))
                 .removePreference(mQuickFixes);
         } else {
-            mShowSuggestions.setDependency(QUICK_FIXES_KEY);
+            //mShowSuggestions.setDependency(QUICK_FIXES_KEY);
         }
     }
 }

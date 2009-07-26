@@ -54,6 +54,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+//import java.util.Locale;
+import android.content.res.Resources;
+import android.content.pm.PackageManager.NameNotFoundException;
+
 /**
  * Input method implementation for Qwerty'ish keyboard.
  */
@@ -135,6 +139,9 @@ public class NorwegianIME extends InputMethodService
     private String mWordSeparators;
     private String mSentenceSeparators;
     
+    private String pkgNameLast;
+    private int resIdLast;
+    
     Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -159,9 +166,12 @@ public class NorwegianIME extends InputMethodService
 
     @Override public void onCreate() {
         super.onCreate();
+
+        //Locale.setDefault(new Locale("nb", "NO"));
+
         //setStatusIcon(R.drawable.ime_qwerty);
         mKeyboardSwitcher = new KeyboardSwitcher(this);
-        initSuggest(getResources().getConfiguration().locale.toString());
+        initSuggest(getResources().getConfiguration().locale.toString(), true);
         
         mVibrateDuration = getResources().getInteger(R.integer.vibrate_duration_ms);
         
@@ -170,14 +180,39 @@ public class NorwegianIME extends InputMethodService
         registerReceiver(mReceiver, filter);
     }
     
-    private void initSuggest(String locale) {
-        mLocale = locale;
-        mSuggest = new Suggest(this, R.raw.main);
-        mSuggest.setCorrectionMode(mCorrectionMode);
-        mUserDictionary = new UserDictionary(this);
-        mSuggest.setUserDictionary(mUserDictionary);
-        mWordSeparators = getResources().getString(R.string.word_separators);
-        mSentenceSeparators = getResources().getString(R.string.sentence_separators);
+    private void initSuggest(String locale, boolean doAll) {
+        String pkgName;
+        int resId = 0x7f030000;
+        if(mKeyboardLayout == 1) pkgName = "com.android.inputmethod.norwegian.danishdictionary";
+        else if(mKeyboardLayout == 2) {
+            pkgName = "com.android.inputmethod.latin";
+            resId = 0x7f050000;
+        }
+        else if(mKeyboardLayout == 3) pkgName = "com.android.inputmethod.norwegian.swedishdictionary";
+        else pkgName = "com.android.inputmethod.norwegian.norwegiandictionary";
+
+        if(doAll || pkgName != pkgNameLast) {
+            Resources res;
+            try {
+                res = getPackageManager().getResourcesForApplication(pkgName);
+            } catch(NameNotFoundException notFound) {
+                res = getResources();
+                resId = 0;
+            }
+            
+            if(doAll || resId != resIdLast) {
+                mLocale = locale;
+                mSuggest = new Suggest(this, res, resId); //(this, R.raw.main);
+                mSuggest.setCorrectionMode(mCorrectionMode, mQuickFixes);
+                mUserDictionary = new UserDictionary(this);
+                mSuggest.setUserDictionary(mUserDictionary);
+                mWordSeparators = getResources().getString(R.string.word_separators);
+                mSentenceSeparators = getResources().getString(R.string.sentence_separators);
+            }
+            if(resId != 0) pkgNameLast = pkgName;
+            else pkgNameLast = "";
+            resIdLast = resId;
+        }
     }
     
     @Override public void onDestroy() {
@@ -189,7 +224,7 @@ public class NorwegianIME extends InputMethodService
     @Override
     public void onConfigurationChanged(Configuration conf) {
         if (!TextUtils.equals(conf.locale.toString(), mLocale)) {
-            initSuggest(conf.locale.toString());
+            initSuggest(conf.locale.toString(), true);
         }
         super.onConfigurationChanged(conf);
     }
@@ -226,6 +261,7 @@ public class NorwegianIME extends InputMethodService
         }
 
         loadSettings();
+        initSuggest(getResources().getConfiguration().locale.toString(), false);
         mKeyboardSwitcher.setKeyboardLayout(mKeyboardLayout);
 
         mKeyboardSwitcher.makeKeyboards();
@@ -295,10 +331,10 @@ public class NorwegianIME extends InputMethodService
         mDeleteCount = 0;
         setCandidatesViewShown(false);
         if (mCandidateView != null) mCandidateView.setSuggestions(null, false, false, false);
-        loadSettings();
+        //loadSettings();
         mInputView.setProximityCorrectionEnabled(true);
         if (mSuggest != null) {
-            mSuggest.setCorrectionMode(mCorrectionMode);
+            mSuggest.setCorrectionMode(mCorrectionMode, mQuickFixes);
         }
         mPredictionOn = mPredictionOn && mCorrectionMode > 0;
         checkTutorial(attribute.privateImeOptions);
@@ -1012,10 +1048,10 @@ public class NorwegianIME extends InputMethodService
         // If there is no auto text data, then quickfix is forced to "on", so that the other options
         // will continue to work
         if (AutoText.getSize(mInputView) < 1) mQuickFixes = true;
-        mShowSuggestions = sp.getBoolean(PREF_SHOW_SUGGESTIONS, true) & mQuickFixes;
-        mAutoComplete = sp.getBoolean(PREF_AUTO_COMPLETE, true) & mShowSuggestions;
+        mShowSuggestions = sp.getBoolean(PREF_SHOW_SUGGESTIONS, true);// & mQuickFixes;
+        mAutoComplete = sp.getBoolean(PREF_AUTO_COMPLETE, true);// & mShowSuggestions;
         mAutoCorrectOn = mSuggest != null && (mAutoComplete || mQuickFixes);
-        mCorrectionMode = mAutoComplete ? 2 : (mQuickFixes ? 1 : 0);
+        mCorrectionMode = mAutoComplete ? 2 : ((mQuickFixes || mShowSuggestions) ? 1 : 0);
     }
 
     private void showOptionsMenu() {

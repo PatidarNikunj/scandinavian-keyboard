@@ -22,6 +22,8 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import android.content.res.Resources;
+
 /**
  * Implements a static, compacted, binary dictionary of standard words.
  */
@@ -52,9 +54,9 @@ public class BinaryDictionary extends Dictionary {
      * @param context application context for reading resources
      * @param resId the resource containing the raw binary dictionary
      */
-    public BinaryDictionary(Context context, int resId) {
+    public BinaryDictionary(Resources res, int resId) {
         if (resId != 0) {
-            loadDictionary(context, resId);
+            loadDictionary(res, resId);
         }
     }
 
@@ -68,9 +70,9 @@ public class BinaryDictionary extends Dictionary {
     private native void setParamsNative(int typedLetterMultiplier,
             int fullWordMultiplier);
 
-    private final void loadDictionary(Context context, int resId) {
-        AssetManager am = context.getResources().getAssets();
-        String assetName = context.getResources().getString(resId);
+    private final void loadDictionary(Resources res, int resId) {
+        AssetManager am = res.getAssets(); //context.getResources().getAssets();
+        String assetName = res.getString(resId); //context.getResources().getString(resId);
         mNativeDict = openNative(am, assetName, TYPED_LETTER_MULTIPLIER, FULL_WORD_FREQ_MULTIPLIER);
     }
 

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.content.res.Resources;
+
 /**
  * This class loads a dictionary and provides a list of suggestions for a given sequence of 
  * characters. This includes corrections and completions.
@@ -53,11 +55,12 @@ public class Suggest implements Dictionary.WordCallback {
     private String mLowerOriginalWord;
 
     private int mCorrectionMode = CORRECTION_BASIC;
+    private boolean useQuickFixes;
 
 
-    public Suggest(Context context, int dictionaryResId) {
+    public Suggest(Context context, Resources res, int dictionaryResId) {
         mContext = context;
-        mMainDict = new BinaryDictionary(context, dictionaryResId);
+        mMainDict = new BinaryDictionary(res, dictionaryResId);
         for (int i = 0; i < mPrefMaxSuggestions; i++) {
             StringBuilder sb = new StringBuilder(32);
             mStringPool.add(sb);
@@ -68,8 +71,9 @@ public class Suggest implements Dictionary.WordCallback {
         return mCorrectionMode;
     }
     
-    public void setCorrectionMode(int mode) {
+    public void setCorrectionMode(int mode, boolean quickFixes) {
         mCorrectionMode = mode;
+	useQuickFixes = quickFixes;
     }
 
     /**
@@ -168,7 +172,7 @@ public class Suggest implements Dictionary.WordCallback {
         int max = 6;
         // Don't autotext the suggestions from the dictionaries
         if (mCorrectionMode == CORRECTION_BASIC) max = 1;
-        while (i < mSuggestions.size() && i < max) {
+        while (i < mSuggestions.size() && i < max && useQuickFixes) {
             String suggestedWord = mSuggestions.get(i).toString().toLowerCase();
             CharSequence autoText =
                     AutoText.get(suggestedWord, 0, suggestedWord.length(), view);

@@ -200,7 +200,7 @@ public class NorwegianIME extends InputMethodService
                 resId = 0;
             }
             
-            if(doAll || resId != resIdLast) {
+            if(doAll || resId != resIdLast || (pkgName != pkgNameLast && resId != 0)) {
                 mLocale = locale;
                 mSuggest = new Suggest(this, res, resId); //(this, R.raw.main);
                 mSuggest.setCorrectionMode(mCorrectionMode, mQuickFixes);

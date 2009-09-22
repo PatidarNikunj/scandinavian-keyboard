@@ -3,12 +3,14 @@
     <string-array name="keyboard_layouts">
         <item>Danish</item>
         <item>English</item>
+        <item>Finnish</item>
         <item>Norwegian</item>
         <item>Swedish</item>
     </string-array>
     <string-array name="keyboard_layouts_values">
         <item type='int'>1</item>
         <item type='int'>2</item>
+        <item type='int'>4</item>
         <item type='int'>0</item>
         <item type='int'>3</item>
     </string-array>

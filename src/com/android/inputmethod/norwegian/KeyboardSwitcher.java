@@ -99,6 +99,7 @@ public class KeyboardSwitcher {
         if(mKeyboardLayout == 1) kbd_layout = R.xml.kbd_qwerty_dk;
         else if(mKeyboardLayout == 2) kbd_layout = R.xml.kbd_qwerty_en;
         else if(mKeyboardLayout == 3) kbd_layout = R.xml.kbd_qwerty_se;
+        else if(mKeyboardLayout == 4) kbd_layout = R.xml.kbd_qwerty_se;
         else kbd_layout = R.xml.kbd_qwerty_no;
 
         mMode = mode;

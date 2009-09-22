@@ -29,7 +29,8 @@
     <string name="sound_on_keypress">Sound on keypress</string>
     
     <string name="help">Help &amp; about</string>
-    <string name="vibration_duration">Vibration duration</string>
+    <string name="vibrate_duration">Vibration duration</string>
+    <string name="vibrate_warning">Values below 30 ms can cause vibration bugs</string>
     <string name="keyboard_layout">Keyboard layout</string>
     <string name="preferences_keyboard_layout_list_default_value">0</string>
     <string name="language_category">Language settings</string>
@@ -37,6 +38,7 @@
     <string name="dictionary_manually_summary_unchecked">Dictionary language is same as layout</string>
     <string name="dictionary_manually_summary_checked">Dictionary language is set manually</string>
     <string name="dictionary">Dictionary language</string>
+    <string name="dictionary_market">Download dictionary</string>
     
     <!-- Option to enable using nearby keys when correcting/predicting -->
     <string name="hit_correction">Correct typing errors</string>
@@ -211,6 +213,14 @@ Homepage:&lt;br&gt;
 &lt;br&gt;
 &lt;b&gt;Changelog&lt;/b&gt;&lt;br&gt;
 &lt;br&gt;
+1.3.2&lt;br&gt;
+· Mostly fixed vibration issue&lt;br&gt;
+· Changed to slidebar for selecting vibration duration&lt;br&gt;
+· Only changes i to I when english layout is selected&lt;br&gt;
+· Added popup characters at ,&lt;br&gt;
+· Added support for finnish dictionary&lt;br&gt;
+· Added option in settings to search for dictionaries in market&lt;br&gt;
+&lt;br&gt;
 1.3.1&lt;br&gt;
 · Possible to choose vibration duration&lt;br&gt;
 · Included help and changelog in settings&lt;br&gt;
@@ -224,7 +234,7 @@ Homepage:&lt;br&gt;
 · Added Icelandic popup characters at d, t, æ and ø.&lt;br&gt;
 &lt;br&gt;
 1.2.1&lt;br&gt;
-· Bugfix&lt;br&gt;
+· Fixed bug when changing layout&lt;br&gt;
 &lt;br&gt;
 1.2.0&lt;br&gt;
 · Support for external dictionaries&lt;br&gt;

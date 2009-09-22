@@ -57,6 +57,9 @@ import java.util.List;
 //import java.util.Locale;
 import android.content.res.Resources;
 import android.content.pm.PackageManager.NameNotFoundException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Date;
 
 /**
  * Input method implementation for Qwerty'ish keyboard.
@@ -70,7 +73,7 @@ public class NorwegianIME extends InputMethodService
     private static final String PREF_DICTIONARY_MANUALLY = "dictionary_manually";
     private static final String PREF_DICTIONARY = "dictionary";
     private static final String PREF_VIBRATE_ON = "vibrate_on";
-    private static final String PREF_VIBRATE_DURATION = "vibration_duration";
+    private static final String PREF_VIBRATE_DURATION = "vibrate_duration";
     private static final String PREF_SOUND_ON = "sound_on";
     private static final String PREF_AUTO_CAP = "auto_cap";
     private static final String PREF_QUICK_FIXES = "quick_fixes";
@@ -136,6 +139,8 @@ public class NorwegianIME extends InputMethodService
 
     private Vibrator mVibrator;
     private long mVibrateDuration;
+    private long mVibrateStart;
+    private Timer mVibrateTimer;
 
     private AudioManager mAudioManager;
     private final float FX_VOLUME = 1.0f;
@@ -201,6 +206,7 @@ public class NorwegianIME extends InputMethodService
             resId = 0x7f050000;
         }
         else if(dictionary == 3) pkgName = "com.android.inputmethod.norwegian.swedishdictionary";
+        else if(dictionary == 4) pkgName = "com.android.inputmethod.norwegian.finnishdictionary";
         else pkgName = "com.android.inputmethod.norwegian.norwegiandictionary";
 
         if(doAll || pkgName != pkgNameLast) {
@@ -1017,7 +1023,30 @@ public class NorwegianIME extends InputMethodService
         if (mVibrator == null) {
             mVibrator = new Vibrator();
         }
+        if (mVibrateTimer == null) {
+            mVibrateTimer = new Timer();
+        }
+
         mVibrator.vibrate(mVibrateDuration);
+        mVibrateStart = (new Date()).getTime();
+        
+        mVibrateTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(mVibrateStart == 0)
+                {
+                    this.cancel();
+                    mVibrateTimer.purge();
+                }
+                else if((new Date()).getTime() > (mVibrateStart + mVibrateDuration))
+                {
+                    mVibrateStart = 0;
+                    mVibrator.cancel();
+                    this.cancel();
+                    mVibrateTimer.purge();
+                }
+            }
+        }, 1, 1);
     }
 
     private void checkTutorial(String privateImeOptions) {
@@ -1053,18 +1082,13 @@ public class NorwegianIME extends InputMethodService
         // Get the settings preferences
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         mVibrateOn = sp.getBoolean(PREF_VIBRATE_ON, true);
-        try {
-            mVibrateDuration = Integer.parseInt(sp.getString(PREF_VIBRATE_DURATION, Integer.toString(getResources().getInteger(R.integer.vibrate_duration_ms))));
-        } catch(NumberFormatException nfe) {
-            mVibrateDuration = getResources().getInteger(R.integer.vibrate_duration_ms);
-        }
+        mVibrateDuration = sp.getInt(PREF_VIBRATE_DURATION, getResources().getInteger(R.integer.vibrate_duration_ms));
         mSoundOn = sp.getBoolean(PREF_SOUND_ON, false);
         mAutoCap = sp.getBoolean(PREF_AUTO_CAP, true);
         
         mKeyboardLayout = Integer.parseInt(sp.getString(PREF_KEYBOARD_LAYOUT, "0"));
         mDictionaryManually = sp.getBoolean(PREF_DICTIONARY_MANUALLY, false);
-        String dictionary = sp.getString(PREF_DICTIONARY, "0");
-        mDictionary = Integer.parseInt(dictionary);
+        mDictionary = Integer.parseInt(sp.getString(PREF_DICTIONARY, "0"));
         
         mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, false);
         // If there is no auto text data, then quickfix is forced to "on", so that the other options
@@ -1074,6 +1098,8 @@ public class NorwegianIME extends InputMethodService
         mAutoComplete = sp.getBoolean(PREF_AUTO_COMPLETE, true);// & mShowSuggestions;
         mAutoCorrectOn = mSuggest != null && (mAutoComplete || mQuickFixes);
         mCorrectionMode = mAutoComplete ? 2 : ((mQuickFixes || mShowSuggestions) ? 1 : 0);
+        if(mKeyboardLayout != 2 && !mDictionaryManually || mDictionary != 2 && mDictionaryManually)
+            mQuickFixes = false;
     }
 
     private void showOptionsMenu() {

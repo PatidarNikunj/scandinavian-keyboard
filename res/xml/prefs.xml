@@ -30,9 +30,9 @@
             android:defaultValue="true"
             />
 
-    <EditTextPreference
-            android:key="vibration_duration"
-            android:title="@string/vibration_duration"
+    <Preference
+            android:key="vibrate_duration"
+            android:title="@string/vibrate_duration"
             android:persistent="true"
             android:defaultValue="@integer/vibrate_duration_ms"
             />
@@ -80,6 +80,11 @@
             android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
             android:persistent="true"
             android:dependency="dictionary_manually"
+            />
+
+        <Preference
+            android:key="dictionary_market"
+            android:title="@string/dictionary_market"
             />
 
     </PreferenceCategory>

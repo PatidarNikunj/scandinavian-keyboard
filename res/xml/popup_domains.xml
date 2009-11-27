@@ -26,15 +26,24 @@
     >
 
     <Row android:rowEdgeFlags="top">
-        <Key android:keyLabel=".net" android:keyOutputText=".net" android:keyEdgeFlags="left" />
-        <Key android:keyLabel=".org" android:keyOutputText=".org"/>
-        <Key android:keyLabel=".gov" android:keyOutputText=".gov"/>
-        <Key android:keyLabel=".tv" android:keyOutputText=".tv" android:keyEdgeFlags="right" />
+        <Key android:keyLabel="@string/popular_domain_1"
+            android:keyOutputText="@string/popular_domain_1" android:keyEdgeFlags="left" />
+        <Key android:keyLabel="@string/popular_domain_2"
+            android:keyOutputText="@string/popular_domain_2"/>
+        <Key android:keyLabel="@string/popular_domain_3"
+            android:keyOutputText="@string/popular_domain_3"/>
+        <Key android:keyLabel="@string/popular_domain_4"
+            android:keyOutputText="@string/popular_domain_4" android:keyEdgeFlags="right" />
     </Row>
-    
+
     <Row android:rowEdgeFlags="bottom">
-        <Key android:keyLabel=".dk" android:keyOutputText=".dk" android:keyEdgeFlags="left" />
-        <Key android:keyLabel=".no" android:keyOutputText=".no"/>
-        <Key android:keyLabel=".se" android:keyOutputText=".se" android:keyEdgeFlags="right" />
+        <Key android:keyLabel="@string/popular_domain_5"
+            android:keyOutputText="@string/popular_domain_5" android:keyEdgeFlags="left" />
+        <Key android:keyLabel="@string/popular_domain_6"
+            android:keyOutputText="@string/popular_domain_6"/>
+        <Key android:keyLabel="@string/popular_domain_7"
+            android:keyOutputText="@string/popular_domain_7"/>
+        <Key android:keyLabel="@string/popular_domain_8"
+            android:keyOutputText="@string/popular_domain_8" android:keyEdgeFlags="right" />
     </Row>
 </Keyboard>

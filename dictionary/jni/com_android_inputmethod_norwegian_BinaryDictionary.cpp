@@ -87,7 +87,7 @@ static jint norwegianime_BinaryDictionary_open
 static int norwegianime_BinaryDictionary_getSuggestions(
         JNIEnv *env, jobject object, jint dict, jintArray inputArray, jint arraySize, 
         jcharArray outputArray, jintArray frequencyArray, jint maxWordLength, jint maxWords, 
-        jint maxAlternatives)
+        jint maxAlternatives, jint skipPos)
 {
     Dictionary *dictionary = (Dictionary*) dict;
     if (dictionary == NULL)
@@ -98,11 +98,11 @@ static int norwegianime_BinaryDictionary_getSuggestions(
     jchar *outputChars = env->GetCharArrayElements(outputArray, NULL);
     
     int count = dictionary->getSuggestions(inputCodes, arraySize, (unsigned short*) outputChars, frequencies,
-            maxWordLength, maxWords, maxAlternatives);
+            maxWordLength, maxWords, maxAlternatives, skipPos);
     
-    env->ReleaseIntArrayElements(frequencyArray, frequencies, JNI_COMMIT);
+    env->ReleaseIntArrayElements(frequencyArray, frequencies, 0);
     env->ReleaseIntArrayElements(inputArray, inputCodes, JNI_ABORT);
-    env->ReleaseCharArrayElements(outputArray, outputChars, JNI_COMMIT);
+    env->ReleaseCharArrayElements(outputArray, outputChars, 0);
     
     return count;
 }
@@ -134,7 +134,7 @@ static JNINativeMethod gMethods[] = {
     {"openNative",           "(Landroid/content/res/AssetManager;Ljava/lang/String;II)I", 
                                           (void*)norwegianime_BinaryDictionary_open},
     {"closeNative",          "(I)V",            (void*)norwegianime_BinaryDictionary_close},
-    {"getSuggestionsNative", "(I[II[C[IIII)I",  (void*)norwegianime_BinaryDictionary_getSuggestions},
+    {"getSuggestionsNative", "(I[II[C[IIIII)I",  (void*)norwegianime_BinaryDictionary_getSuggestions},
     {"isValidWordNative",    "(I[CI)Z",         (void*)norwegianime_BinaryDictionary_isValidWord}
 };
 

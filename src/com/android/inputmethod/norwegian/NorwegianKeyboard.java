@@ -31,6 +31,12 @@ public class NorwegianKeyboard extends Keyboard {
     private Drawable mOldShiftPreviewIcon;
     private Key mShiftKey;
     private Key mEnterKey;
+    private Key mDelKey;
+    private Key mSpaceKey;
+    private Key mSymbolsKey;
+    private Key[] mNumbersKeys;
+    private Key mStarKey;
+    private Key mPoundKey;
     
     private static final int SHIFT_OFF = 0;
     private static final int SHIFT_ON = 1;
@@ -38,19 +44,24 @@ public class NorwegianKeyboard extends Keyboard {
     
     private int mShiftState = SHIFT_OFF;
     
+    static int sSpacebarVerticalCorrection;
+    
+    private boolean mChangeIcons;
+    
     public NorwegianKeyboard(Context context, int xmlLayoutResId) {
         this(context, xmlLayoutResId, 0);
     }
 
     public NorwegianKeyboard(Context context, int xmlLayoutResId, int mode) {
         super(context, xmlLayoutResId, mode);
-        mShiftLockIcon = context.getResources()
-                .getDrawable(R.drawable.sym_keyboard_shift_locked);
-        mShiftLockPreviewIcon = context.getResources()
-                .getDrawable(R.drawable.sym_keyboard_feedback_shift_locked);
+        Resources res = context.getResources();
+        mShiftLockIcon = res.getDrawable(R.drawable.sym_keyboard_shift_locked);
+        mShiftLockPreviewIcon = res.getDrawable(R.drawable.sym_keyboard_feedback_shift_locked);
         mShiftLockPreviewIcon.setBounds(0, 0, 
                 mShiftLockPreviewIcon.getIntrinsicWidth(),
                 mShiftLockPreviewIcon.getIntrinsicHeight());
+        sSpacebarVerticalCorrection = res.getDimensionPixelOffset(
+                R.dimen.spacebar_vertical_correction);
     }
 
     public NorwegianKeyboard(Context context, int layoutTemplateResId, 
@@ -64,15 +75,31 @@ public class NorwegianKeyboard extends Keyboard {
         Key key = new NorwegianKey(res, parent, x, y, parser);
         if (key.codes[0] == 10) {
             mEnterKey = key;
+        } else if (key.codes[0] == KEYCODE_DELETE) {
+            mDelKey = key;
+        } else if (key.codes[0] == NorwegianIME.KEYCODE_SPACE) {
+            mSpaceKey = key;
+        } else if (key.codes[0] == KEYCODE_MODE_CHANGE) {
+            mSymbolsKey = key;
+        } else if (key.codes[0] > 47 && key.codes[0] < 58) {
+            if(mNumbersKeys == null)
+                mNumbersKeys = new Key[10];
+            mNumbersKeys[key.codes[0] - 48] = key;
+        } else if (key.codes[0] == 42) {
+            mStarKey = key;
+        } else if (key.codes[0] == 35) {
+            mPoundKey = key;
         }
         return key;
     }
     
     void setImeOptions(Resources res, int mode, int options) {
+        setImeOptions(res, mode, options, mChangeIcons);
+    }
+    
+    void setImeOptions(Resources res, int mode, int options, boolean changeIcons) {
+        mChangeIcons = changeIcons;
         if (mEnterKey != null) {
-            // Reset some of the rarely used attributes.
-            mEnterKey.popupCharacters = null;
-            mEnterKey.popupResId = 0;
             mEnterKey.text = null;
             switch (options&(EditorInfo.IME_MASK_ACTION|EditorInfo.IME_FLAG_NO_ENTER_ACTION)) {
                 case EditorInfo.IME_ACTION_GO:
@@ -93,7 +120,11 @@ public class NorwegianKeyboard extends Keyboard {
                 case EditorInfo.IME_ACTION_SEARCH:
                     mEnterKey.iconPreview = res.getDrawable(
                             R.drawable.sym_keyboard_feedback_search);
-                    mEnterKey.icon = res.getDrawable(
+                    if(changeIcons)
+                        mEnterKey.icon = res.getDrawable(
+                            R.drawable.sym_keyboard_search_dark);
+                    else
+                        mEnterKey.icon = res.getDrawable(
                             R.drawable.sym_keyboard_search);
                     mEnterKey.label = null;
                     break;
@@ -105,18 +136,15 @@ public class NorwegianKeyboard extends Keyboard {
                 default:
                     mEnterKey.iconPreview = res.getDrawable(
                             R.drawable.sym_keyboard_feedback_return);
-                    mEnterKey.icon = res.getDrawable(
+                    if(changeIcons)
+                        mEnterKey.icon = res.getDrawable(
+                            R.drawable.sym_keyboard_return_dark);
+                    else
+                        mEnterKey.icon = res.getDrawable(
                             R.drawable.sym_keyboard_return);
                     mEnterKey.label = null;
-                    if (mode == KeyboardSwitcher.MODE_IM) {
-                        //mEnterKey.icon = null;
-                        //mEnterKey.iconPreview = null;
-                        //mEnterKey.label = ":-)";
-                        //mEnterKey.text = ":-) ";
+                    if (mode == KeyboardSwitcher.MODE_IM)
                         mEnterKey.text = "\n";
-                        mEnterKey.popupResId = R.xml.popup_smileys;
-                    } else {
-                    }
                     break;
             }
             // Set the initial size of the preview icon
@@ -124,6 +152,48 @@ public class NorwegianKeyboard extends Keyboard {
                 mEnterKey.iconPreview.setBounds(0, 0, 
                         mEnterKey.iconPreview.getIntrinsicWidth(),
                         mEnterKey.iconPreview.getIntrinsicHeight());
+            }
+        }
+        
+        if(changeIcons) {
+            if(mShiftKey != null)
+                mShiftKey.icon = res.getDrawable(R.drawable.sym_keyboard_shift_dark);
+            if(mDelKey !=null)
+                mDelKey.icon = res.getDrawable(R.drawable.sym_keyboard_delete_dark);
+            if(mSpaceKey != null)
+                mSpaceKey.icon = res.getDrawable(R.drawable.sym_keyboard_space_dark);
+            mOldShiftIcon = res.getDrawable(R.drawable.sym_keyboard_shift_dark);
+            mShiftLockIcon = res.getDrawable(R.drawable.sym_keyboard_shift_locked_dark);
+            
+            if(mode == KeyboardSwitcher.MODE_PHONE) {
+                if(mSymbolsKey != null)
+                    mSymbolsKey.icon = res.getDrawable(R.drawable.sym_keyboard_numalt_dark);
+                if(mNumbersKeys != null) {
+                    if(mNumbersKeys[0] != null)
+                        mNumbersKeys[0].icon = res.getDrawable(R.drawable.sym_keyboard_num0_dark);
+                    if(mNumbersKeys[1] != null)
+                        mNumbersKeys[1].icon = res.getDrawable(R.drawable.sym_keyboard_num1_dark);
+                    if(mNumbersKeys[2] != null)
+                        mNumbersKeys[2].icon = res.getDrawable(R.drawable.sym_keyboard_num2_dark);
+                    if(mNumbersKeys[3] != null)
+                        mNumbersKeys[3].icon = res.getDrawable(R.drawable.sym_keyboard_num3_dark);
+                    if(mNumbersKeys[4] != null)
+                        mNumbersKeys[4].icon = res.getDrawable(R.drawable.sym_keyboard_num4_dark);
+                    if(mNumbersKeys[5] != null)
+                        mNumbersKeys[5].icon = res.getDrawable(R.drawable.sym_keyboard_num5_dark);
+                    if(mNumbersKeys[6] != null)
+                        mNumbersKeys[6].icon = res.getDrawable(R.drawable.sym_keyboard_num6_dark);
+                    if(mNumbersKeys[7] != null)
+                        mNumbersKeys[7].icon = res.getDrawable(R.drawable.sym_keyboard_num7_dark);
+                    if(mNumbersKeys[8] != null)
+                        mNumbersKeys[8].icon = res.getDrawable(R.drawable.sym_keyboard_num8_dark);
+                    if(mNumbersKeys[9] != null)
+                        mNumbersKeys[9].icon = res.getDrawable(R.drawable.sym_keyboard_num9_dark);
+                }
+                if(mStarKey != null)
+                    mStarKey.icon = res.getDrawable(R.drawable.sym_keyboard_numstar_dark);
+                if(mPoundKey != null)
+                    mPoundKey.icon = res.getDrawable(R.drawable.sym_keyboard_numpound_dark);
             }
         }
     }
@@ -220,13 +290,15 @@ public class NorwegianKeyboard extends Keyboard {
          */
         @Override
         public boolean isInside(int x, int y) {
-            if ((edgeFlags & Keyboard.EDGE_BOTTOM) != 0 ||
-                    codes[0] == KEYCODE_SHIFT ||
-                    codes[0] == KEYCODE_DELETE) {
+            final int code = codes[0];
+            if (code == KEYCODE_SHIFT ||
+                    code == KEYCODE_DELETE) {
                 y -= height / 10;
+                if (code == KEYCODE_SHIFT) x += width / 6;
+                if (code == KEYCODE_DELETE) x -= width / 6;
+            } else if (code == NorwegianIME.KEYCODE_SPACE) {
+                y += NorwegianKeyboard.sSpacebarVerticalCorrection;
             }
-            if (codes[0] == KEYCODE_SHIFT) x += width / 6;
-            if (codes[0] == KEYCODE_DELETE) x -= width / 6;
             return super.isInside(x, y);
         }
     }

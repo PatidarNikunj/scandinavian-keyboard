@@ -49,7 +49,25 @@
             android:persistent="true"
             android:defaultValue="true"
             />
+
+    <CheckBoxPreference
+            android:key="swipe_enabled"
+            android:title="@string/enable_swipe"
+            android:summary="@string/enable_swipe_summary"
+            android:persistent="true"
+            android:defaultValue="true"
+            />
             
+        <ListPreference
+            android:key="skin"
+            android:title="@string/skin"
+            android:summary="@string/skin_summary"
+            android:entries="@array/skin_entries"
+            android:entryValues="@array/skin_values"
+            android:persistent="true"
+            android:defaultValue="@string/preferences_skin_default_value"
+            />
+
     <PreferenceCategory
             android:title="@string/language_category"
             android:key="language_settings">
@@ -93,6 +111,14 @@
             android:title="@string/prediction_category"
             android:key="prediction_settings">
 
+        <PreferenceScreen 
+                android:title="@string/user_dict_settings_title" 
+                android:summary="">
+            <intent android:action="android.intent.action.MAIN"
+                    android:targetPackage="com.android.inputmethod.norwegian"
+                    android:targetClass="com.android.inputmethod.norwegian.UserDictionarySettings" />
+        </PreferenceScreen>
+
         <CheckBoxPreference
             android:key="quick_fixes"
             android:title="@string/quick_fixes"
@@ -114,9 +140,34 @@
             android:title="@string/auto_complete"
             android:summary="@string/auto_complete_summary"
             android:persistent="true" 
+            android:defaultValue="@bool/enable_autocorrect"
+            android:dependency="show_suggestions"
+            />
+
+        <CheckBoxPreference
+            android:key="auto_dictionary_enabled"
+            android:title="@string/auto_dictionary"
+            android:summary="@string/auto_dictionary_summary"
+            android:persistent="true"
             android:defaultValue="true"
             android:dependency="show_suggestions"
             />
-            
-    </PreferenceCategory>            
+
+        <CheckBoxPreference
+            android:key="space_after_prediction"
+            android:title="@string/space_after_prediction"
+            android:summary="@string/space_after_prediction_summary"
+            android:persistent="true"
+            android:defaultValue="true"
+            />
+
+        <CheckBoxPreference
+            android:key="swap_colon"
+            android:title="@string/swap_colon"
+            android:summary="@string/swap_colon_summary"
+            android:persistent="true"
+            android:defaultValue="true"
+            />
+
+    </PreferenceCategory>
 </PreferenceScreen>

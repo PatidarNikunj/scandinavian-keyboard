@@ -42,13 +42,15 @@ public class Suggest implements Dictionary.WordCallback {
     private Dictionary mMainDict;
     
     private Dictionary mUserDictionary;
+
+    private Dictionary mAutoDictionary;
     
     private int mPrefMaxSuggestions = 12;
     
     private int[] mPriorities = new int[mPrefMaxSuggestions];
-    private List<CharSequence> mSuggestions = new ArrayList<CharSequence>();
+    private ArrayList<CharSequence> mSuggestions = new ArrayList<CharSequence>();
     private boolean mIncludeTypedWordIfValid;
-    private List<CharSequence> mStringPool = new ArrayList<CharSequence>();
+    private ArrayList<CharSequence> mStringPool = new ArrayList<CharSequence>();
     private Context mContext;
     private boolean mHaveCorrection;
     private CharSequence mOriginalWord;
@@ -84,6 +86,10 @@ public class Suggest implements Dictionary.WordCallback {
         mUserDictionary = userDictionary;
     }
 
+    public void setAutoDictionary(Dictionary autoDictionary) {
+        mAutoDictionary = autoDictionary;
+    }
+
     /**
      * Number of suggestions to generate from the input key sequence. This has
      * to be a number between 1 and 100 (inclusive).
@@ -104,19 +110,29 @@ public class Suggest implements Dictionary.WordCallback {
     }
     
     private boolean haveSufficientCommonality(String original, CharSequence suggestion) {
-        final int len = Math.min(original.length(), suggestion.length());
-        if (len <= 2) return true;
+        final int originalLength = original.length();
+        final int suggestionLength = suggestion.length();
+        final int minLength = Math.min(originalLength, suggestionLength);
+        if (minLength <= 2) return true;
         int matching = 0;
-        for (int i = 0; i < len; i++) {
-            if (UserDictionary.toLowerCase(original.charAt(i)) 
-                    == UserDictionary.toLowerCase(suggestion.charAt(i))) {
+        int lessMatching = 0; // Count matches if we skip one character
+        int i;
+        for (i = 0; i < minLength; i++) {
+            final char origChar = ExpandableDictionary.toLowerCase(original.charAt(i));
+            if (origChar == ExpandableDictionary.toLowerCase(suggestion.charAt(i))) {
                 matching++;
+                lessMatching++;
+            } else if (i + 1 < suggestionLength
+                    && origChar == ExpandableDictionary.toLowerCase(suggestion.charAt(i + 1))) {
+                lessMatching++;
             }
         }
-        if (len <= 4) {
+        matching = Math.max(matching, lessMatching);
+
+        if (minLength <= 4) {
             return matching >= 2;
         } else {
-            return matching > len / 2;
+            return matching > minLength / 2;
         }
     }
     
@@ -192,7 +208,35 @@ public class Suggest implements Dictionary.WordCallback {
             i++;
         }
         
+        removeDupes();
         return mSuggestions;
+    }
+
+    private void removeDupes() {
+        final ArrayList<CharSequence> suggestions = mSuggestions;
+        if (suggestions.size() < 2) return;
+        int i = 1;
+        // Don't cache suggestions.size(), since we may be removing items
+        while (i < suggestions.size()) {
+            final CharSequence cur = suggestions.get(i);
+            // Compare each candidate with each previous candidate
+            for (int j = 0; j < i; j++) {
+                CharSequence previous = suggestions.get(j);
+                if (TextUtils.equals(cur, previous)) {
+                    removeFromSuggestions(i);
+                    i--;
+                    break;
+                }
+            }
+            i++;
+        }
+    }
+
+    private void removeFromSuggestions(int index) {
+        CharSequence garbage = mSuggestions.remove(index);
+        if (garbage != null && garbage instanceof StringBuilder) {
+            mStringPool.add(garbage);
+        }
     }
 
     public boolean hasMinimalCorrection() {
@@ -260,7 +304,8 @@ public class Suggest implements Dictionary.WordCallback {
         }
         return (mCorrectionMode == CORRECTION_FULL && mMainDict.isValidWord(word)) 
                 || (mCorrectionMode > CORRECTION_NONE && 
-                    (mUserDictionary != null && mUserDictionary.isValidWord(word)));
+                    ((mUserDictionary != null && mUserDictionary.isValidWord(word)))
+                     || (mAutoDictionary != null && mAutoDictionary.isValidWord(word)));
     }
     
     private void collectGarbage() {

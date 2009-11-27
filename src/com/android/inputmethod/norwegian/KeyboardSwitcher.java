@@ -16,9 +16,8 @@
 
 package com.android.inputmethod.norwegian;
 
-import android.inputmethodservice.Keyboard;
-
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class KeyboardSwitcher {
 
@@ -37,57 +36,86 @@ public class KeyboardSwitcher {
     public static final int KEYBOARDMODE_URL = R.id.mode_url;
     public static final int KEYBOARDMODE_EMAIL = R.id.mode_email;
     public static final int KEYBOARDMODE_IM = R.id.mode_im;
+
+    private static final int SYMBOLS_MODE_STATE_NONE = 0;
+    private static final int SYMBOLS_MODE_STATE_BEGIN = 1;
+    private static final int SYMBOLS_MODE_STATE_SYMBOL = 2;
     
     private int mKeyboardLayout;
+    private boolean mChangeIcons;
 
     NorwegianKeyboardView mInputView;
     NorwegianIME mContext;
     
-    private NorwegianKeyboard mPhoneKeyboard;
-    private NorwegianKeyboard mPhoneSymbolsKeyboard;
-    private NorwegianKeyboard mSymbolsKeyboard;
-    private NorwegianKeyboard mSymbolsShiftedKeyboard;
-    private NorwegianKeyboard mQwertyKeyboard;
-    private NorwegianKeyboard mAlphaKeyboard;
-    private NorwegianKeyboard mUrlKeyboard;
-    private NorwegianKeyboard mEmailKeyboard;
-    private NorwegianKeyboard mIMKeyboard;
-    
-    List<Keyboard> mKeyboards;
+    private KeyboardId mSymbolsId;
+    private KeyboardId mSymbolsShiftedId;
+
+    private KeyboardId mCurrentId;
+    private Map<KeyboardId, NorwegianKeyboard> mKeyboards;
     
     private int mMode;
     private int mImeOptions;
     private int mTextMode = MODE_TEXT_QWERTY;
+    private boolean mIsSymbols;
+    private boolean mPreferSymbols;
+    private int mSymbolsModeState = SYMBOLS_MODE_STATE_NONE;
 
     private int mLastDisplayWidth;
 
     KeyboardSwitcher(NorwegianIME context) {
         mContext = context;
+        mKeyboards = new HashMap<KeyboardId, NorwegianKeyboard>();
+        mSymbolsId = new KeyboardId(R.xml.kbd_symbols);
+        mSymbolsShiftedId = new KeyboardId(R.xml.kbd_symbols_shift);
     }
 
     void setInputView(NorwegianKeyboardView inputView) {
         mInputView = inputView;
     }
     
-    void makeKeyboards() {
+    void makeKeyboards(boolean forceCreate) {
+        if (forceCreate) mKeyboards.clear();
         // Configuration change is coming after the keyboard gets recreated. So don't rely on that.
         // If keyboards have already been made, check if we have a screen width change and 
         // create the keyboard layouts again at the correct orientation
-        if (mKeyboards != null) {
-            int displayWidth = mContext.getMaxWidth();
-            if (displayWidth == mLastDisplayWidth) return;
-            mLastDisplayWidth = displayWidth;
+        int displayWidth = mContext.getMaxWidth();
+        if (displayWidth == mLastDisplayWidth) return;
+        mLastDisplayWidth = displayWidth;
+        if (!forceCreate) mKeyboards.clear();
+        mSymbolsId = new KeyboardId(R.xml.kbd_symbols);
+        mSymbolsShiftedId = new KeyboardId(R.xml.kbd_symbols_shift);
+    }
+
+    /**
+     * Represents the parameters necessary to construct a new NorwegianKeyboard,
+     * which also serve as a unique identifier for each keyboard type.
+     */
+    private static class KeyboardId {
+        public int mXml;
+        public int mMode;
+        public boolean mEnableShiftLock;
+
+        public KeyboardId(int xml, int mode, boolean enableShiftLock) {
+            this.mXml = xml;
+            this.mMode = mode;
+            this.mEnableShiftLock = enableShiftLock;
         }
-        // Delayed creation when keyboard mode is set.
-        mQwertyKeyboard = null;
-        mAlphaKeyboard = null;
-        mUrlKeyboard = null;
-        mEmailKeyboard = null;
-        mIMKeyboard = null;
-        mPhoneKeyboard = null;
-        mPhoneSymbolsKeyboard = null;
-        mSymbolsKeyboard = null;
-        mSymbolsShiftedKeyboard = null;
+
+        public KeyboardId(int xml) {
+            this(xml, 0, false);
+        }
+
+        public boolean equals(Object other) {
+            return other instanceof KeyboardId && equals((KeyboardId) other);
+        }
+
+        public boolean equals(KeyboardId other) {
+            return other.mXml == this.mXml && other.mMode == this.mMode;
+        }
+
+        public int hashCode() {
+            return (mXml + 1) * (mMode + 1) * (mEnableShiftLock ? 2 : 1);
+        }
     }
 
     void setKeyboardLayout(int keyboardLayout) {
@@ -95,81 +123,108 @@ public class KeyboardSwitcher {
     }
 
     void setKeyboardMode(int mode, int imeOptions) {
-        int kbd_layout;
-        if(mKeyboardLayout == 1) kbd_layout = R.xml.kbd_qwerty_dk;
-        else if(mKeyboardLayout == 2) kbd_layout = R.xml.kbd_qwerty_en;
-        else if(mKeyboardLayout == 3) kbd_layout = R.xml.kbd_qwerty_se;
-        else if(mKeyboardLayout == 4) kbd_layout = R.xml.kbd_qwerty_se;
-        else kbd_layout = R.xml.kbd_qwerty_no;
+        setKeyboardModeChangeIcons(mode, imeOptions, mChangeIcons);
+    }
+    
+    void setKeyboardModeChangeIcons(int mode, int imeOptions, boolean changeIcons) {
+        mChangeIcons = changeIcons;
+        mSymbolsModeState = SYMBOLS_MODE_STATE_NONE;
+        mPreferSymbols = mode == MODE_SYMBOLS;
+        setKeyboardMode(mode == MODE_SYMBOLS ? MODE_TEXT : mode, imeOptions,
+                mPreferSymbols, changeIcons);
+    }
 
+    void setKeyboardMode(int mode, int imeOptions, boolean isSymbols) {
+        setKeyboardMode(mode, imeOptions, isSymbols, mChangeIcons);
+    }
+    
+    void setKeyboardMode(int mode, int imeOptions, boolean isSymbols, boolean changeIcons) {
         mMode = mode;
         mImeOptions = imeOptions;
-        NorwegianKeyboard keyboard = (NorwegianKeyboard) mInputView.getKeyboard();
+        mIsSymbols = isSymbols;
         mInputView.setPreviewEnabled(true);
-        switch (mode) {
-            case MODE_TEXT:
-                if (mTextMode == MODE_TEXT_QWERTY) {
-                    if (mQwertyKeyboard == null) {
-                        mQwertyKeyboard = new NorwegianKeyboard(mContext, kbd_layout,
-                                KEYBOARDMODE_NORMAL);
-                        mQwertyKeyboard.enableShiftLock();
-                    }
-                    keyboard = mQwertyKeyboard;
-                } else if (mTextMode == MODE_TEXT_ALPHA) {
-                    if (mAlphaKeyboard == null) {
-                        mAlphaKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_alpha,
-                                KEYBOARDMODE_NORMAL);
-                        mAlphaKeyboard.enableShiftLock();
-                    }
-                    keyboard = mAlphaKeyboard;
-                }
-                break;
-            case MODE_SYMBOLS:
-                if (mSymbolsKeyboard == null) {
-                    mSymbolsKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_symbols);
-                }
-                if (mSymbolsShiftedKeyboard == null) {
-                    mSymbolsShiftedKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_symbols_shift);
-                }
-                keyboard = mSymbolsKeyboard;
-                break;
-            case MODE_PHONE:
-                if (mPhoneKeyboard == null) {
-                    mPhoneKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_phone);
-                }
-                mInputView.setPhoneKeyboard(mPhoneKeyboard);
-                if (mPhoneSymbolsKeyboard == null) {
-                    mPhoneSymbolsKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_phone_symbols);
-                }
-                keyboard = mPhoneKeyboard;
-                mInputView.setPreviewEnabled(false);
-                break;
-            case MODE_URL:
-                if (mUrlKeyboard == null) {
-                    mUrlKeyboard = new NorwegianKeyboard(mContext, kbd_layout, KEYBOARDMODE_URL);
-                    mUrlKeyboard.enableShiftLock();
-                }
-                keyboard = mUrlKeyboard;
-                break;
-            case MODE_EMAIL:
-                if (mEmailKeyboard == null) {
-                    mEmailKeyboard = new NorwegianKeyboard(mContext, kbd_layout, KEYBOARDMODE_EMAIL);
-                    mEmailKeyboard.enableShiftLock();
-                }
-                keyboard = mEmailKeyboard;
-                break;
-            case MODE_IM:
-                if (mIMKeyboard == null) {
-                    mIMKeyboard = new NorwegianKeyboard(mContext, kbd_layout, KEYBOARDMODE_IM);
-                    mIMKeyboard.enableShiftLock();
-                }
-                keyboard = mIMKeyboard;
-                break;
+        KeyboardId id = getKeyboardId(mode, imeOptions, isSymbols);
+        NorwegianKeyboard keyboard = getKeyboard(id);
+
+        if (mode == MODE_PHONE) {
+            mInputView.setPhoneKeyboard(keyboard);
+            mInputView.setPreviewEnabled(false);
         }
+
+        mCurrentId = id;
         mInputView.setKeyboard(keyboard);
         keyboard.setShifted(false);
         keyboard.setShiftLocked(keyboard.isShiftLocked());
-        keyboard.setImeOptions(mContext.getResources(), mMode, imeOptions);
+        mChangeIcons = changeIcons;
+        keyboard.setImeOptions(mContext.getResources(), mMode, imeOptions, changeIcons);
+    }
+
+    private NorwegianKeyboard getKeyboard(KeyboardId id) {
+        if (!mKeyboards.containsKey(id)) {
+            NorwegianKeyboard keyboard = new NorwegianKeyboard(
+                mContext, id.mXml, id.mMode);
+            if (id.mEnableShiftLock) {
+                keyboard.enableShiftLock();
+            }
+            mKeyboards.put(id, keyboard);
+        }
+        return mKeyboards.get(id);
+    }
+
+    private KeyboardId getKeyboardId(int mode, int imeOptions, boolean isSymbols) {
+        if (isSymbols) {
+            return (mode == MODE_PHONE)
+                ? new KeyboardId(R.xml.kbd_phone_symbols) : new KeyboardId(R.xml.kbd_symbols);
+        }
+
+        int kbd_layout;
+        switch(mKeyboardLayout) {
+            case 1:
+                 kbd_layout = R.xml.kbd_qwerty_da;
+                 break;
+            case 2:
+                 kbd_layout = R.xml.kbd_qwerty_en;
+                 break;
+            case 3:
+            case 4:
+                 kbd_layout = R.xml.kbd_qwerty_sv;
+                 break;
+            case 5:
+                 kbd_layout = R.xml.kbd_qwerty_fo;
+                 break;
+            case 6:
+                 kbd_layout = R.xml.kbd_qwerty_fo2;
+                 break;
+            case 7:
+                 kbd_layout = R.xml.kbd_qwerty_de;
+                 break;
+            case 8:
+                 kbd_layout = R.xml.kbd_qwerty_se;
+                 break;
+            default:
+                 kbd_layout = R.xml.kbd_qwerty_no;
+        }
+
+        switch (mode) {
+            case MODE_TEXT:
+                if (mTextMode == MODE_TEXT_QWERTY) {
+                    return new KeyboardId(kbd_layout, KEYBOARDMODE_NORMAL, true);
+                } else if (mTextMode == MODE_TEXT_ALPHA) {
+                    return new KeyboardId(R.xml.kbd_alpha, KEYBOARDMODE_NORMAL, true);
+                }
+                break;
+            case MODE_SYMBOLS:
+                return new KeyboardId(R.xml.kbd_symbols);
+            case MODE_PHONE:
+                return new KeyboardId(R.xml.kbd_phone);
+            case MODE_URL:
+                return new KeyboardId(kbd_layout, KEYBOARDMODE_URL, true);
+            case MODE_EMAIL:
+                return new KeyboardId(kbd_layout, KEYBOARDMODE_EMAIL, true);
+            case MODE_IM:
+                return new KeyboardId(kbd_layout, KEYBOARDMODE_IM, true);
+        }
+        return null;
     }
 
     int getKeyboardMode() {
@@ -198,56 +253,59 @@ public class KeyboardSwitcher {
     }
 
     boolean isAlphabetMode() {
-        Keyboard current = mInputView.getKeyboard();
-        if (current == mQwertyKeyboard
-                || current == mAlphaKeyboard
-                || current == mUrlKeyboard
-                || current == mIMKeyboard
-                || current == mEmailKeyboard) {
-            return true;
-        }
-        return false;
+        KeyboardId current = mCurrentId;
+        return current.mMode == KEYBOARDMODE_NORMAL
+            || current.mMode == KEYBOARDMODE_URL
+            || current.mMode == KEYBOARDMODE_EMAIL
+            || current.mMode == KEYBOARDMODE_IM;
     }
 
     void toggleShift() {
-        Keyboard currentKeyboard = mInputView.getKeyboard();
-        if (currentKeyboard == mSymbolsKeyboard) {
-            mSymbolsKeyboard.setShifted(true);
-            mInputView.setKeyboard(mSymbolsShiftedKeyboard);
-            mSymbolsShiftedKeyboard.setShifted(true);
-            mSymbolsShiftedKeyboard.setImeOptions(mContext.getResources(), mMode, mImeOptions);
-        } else if (currentKeyboard == mSymbolsShiftedKeyboard) {
-            mSymbolsShiftedKeyboard.setShifted(false);
-            mInputView.setKeyboard(mSymbolsKeyboard);
-            mSymbolsKeyboard.setShifted(false);
-            mSymbolsKeyboard.setImeOptions(mContext.getResources(), mMode, mImeOptions);
+        if (mCurrentId.equals(mSymbolsId)) {
+            NorwegianKeyboard symbolsKeyboard = getKeyboard(mSymbolsId);
+            NorwegianKeyboard symbolsShiftedKeyboard = getKeyboard(mSymbolsShiftedId);
+            symbolsKeyboard.setShifted(true);
+            mCurrentId = mSymbolsShiftedId;
+            mInputView.setKeyboard(symbolsShiftedKeyboard);
+            symbolsShiftedKeyboard.setShifted(true);
+            symbolsShiftedKeyboard.setImeOptions(mContext.getResources(), mMode, mImeOptions);
+        } else if (mCurrentId.equals(mSymbolsShiftedId)) {
+            NorwegianKeyboard symbolsKeyboard = getKeyboard(mSymbolsId);
+            NorwegianKeyboard symbolsShiftedKeyboard = getKeyboard(mSymbolsShiftedId);
+            symbolsShiftedKeyboard.setShifted(false);
+            mCurrentId = mSymbolsId;
+            mInputView.setKeyboard(getKeyboard(mSymbolsId));
+            symbolsKeyboard.setShifted(false);
+            symbolsKeyboard.setImeOptions(mContext.getResources(), mMode, mImeOptions);
         }
     }
 
     void toggleSymbols() {
-        Keyboard current = mInputView.getKeyboard();
-        if (mSymbolsKeyboard == null) {
-            mSymbolsKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_symbols);
-        }
-        if (mSymbolsShiftedKeyboard == null) {
-            mSymbolsShiftedKeyboard = new NorwegianKeyboard(mContext, R.xml.kbd_symbols_shift);
-        }
-        if (current == mSymbolsKeyboard || current == mSymbolsShiftedKeyboard) {
-            setKeyboardMode(mMode, mImeOptions); // Could be qwerty, alpha, url, email or im
-            return;
-        } else if (current == mPhoneKeyboard) {
-            current = mPhoneSymbolsKeyboard;
-            mPhoneSymbolsKeyboard.setImeOptions(mContext.getResources(), mMode, mImeOptions);
-        } else if (current == mPhoneSymbolsKeyboard) {
-            current = mPhoneKeyboard;
-            mPhoneKeyboard.setImeOptions(mContext.getResources(), mMode, mImeOptions);
+        setKeyboardMode(mMode, mImeOptions, !mIsSymbols);
+        if (mIsSymbols && !mPreferSymbols) {
+            mSymbolsModeState = SYMBOLS_MODE_STATE_BEGIN;
         } else {
-            current = mSymbolsKeyboard;
-            mSymbolsKeyboard.setImeOptions(mContext.getResources(), mMode, mImeOptions);
+            mSymbolsModeState = SYMBOLS_MODE_STATE_NONE;
         }
-        mInputView.setKeyboard(current);
-        if (current == mSymbolsKeyboard) {
-            current.setShifted(false);
+    }
+
+    /**
+     * Updates state machine to figure out when to automatically switch back to alpha mode.
+     * Returns true if the keyboard needs to switch back 
+     */
+    boolean onKey(int key) {
+        // Switch back to alpha mode if user types one or more non-space/enter characters
+        // followed by a space/enter
+        switch (mSymbolsModeState) {
+            case SYMBOLS_MODE_STATE_BEGIN:
+                if (key != NorwegianIME.KEYCODE_SPACE && key != NorwegianIME.KEYCODE_ENTER && key > 0) {
+                    mSymbolsModeState = SYMBOLS_MODE_STATE_SYMBOL;
+                }
+                break;
+            case SYMBOLS_MODE_STATE_SYMBOL:
+                if (key == NorwegianIME.KEYCODE_ENTER || key == NorwegianIME.KEYCODE_SPACE) return true;
+                break;
         }
+        return false;
     }
 }

@@ -24,4 +24,6 @@
     <string name="alternates_for_r">ř</string>
     <!-- Accented characters related to "t" -->
     <string name="alternates_for_t">ť</string>
+    <!-- Accented characters related to "z" -->
+    <string name="alternates_for_z">ž</string>
 </resources>

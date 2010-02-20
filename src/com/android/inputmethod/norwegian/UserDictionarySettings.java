@@ -263,7 +263,7 @@ public class UserDictionarySettings extends ListActivity {
             super(context, layout, c, from, to);
 
             int wordColIndex = c.getColumnIndexOrThrow(UserDictionary.Words.WORD);
-            String alphabet = context.getString(com.android.internal.R.string.fast_scroll_alphabet);
+            String alphabet = context.getString(R.string.fast_scroll_alphabet);
             mIndexer = new AlphabetIndexer(c, wordColIndex, alphabet); 
         }
 

@@ -154,17 +154,17 @@
             />
 
         <CheckBoxPreference
-            android:key="space_after_prediction"
-            android:title="@string/space_after_prediction"
-            android:summary="@string/space_after_prediction_summary"
+            android:key="swap_colon"
+            android:title="@string/swap_colon"
+            android:summary="@string/swap_colon_summary"
             android:persistent="true"
             android:defaultValue="true"
             />
 
         <CheckBoxPreference
-            android:key="swap_colon"
-            android:title="@string/swap_colon"
-            android:summary="@string/swap_colon_summary"
+            android:key="space_after_prediction"
+            android:title="@string/space_after_prediction"
+            android:summary="@string/space_after_prediction_summary"
             android:persistent="true"
             android:defaultValue="true"
             />

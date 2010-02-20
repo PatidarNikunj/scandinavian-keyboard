@@ -740,7 +740,7 @@ public class NorwegianIME extends InputMethodService
         } else {
             deleteChar = true;
         }
-        updateShiftKeyState(getCurrentInputEditorInfo());
+        postUpdateShiftKeyState();
         TextEntryState.backspace();
         if (TextEntryState.getState() == TextEntryState.STATE_UNDO_COMMIT) {
             revertLastWord(deleteChar);
@@ -826,7 +826,7 @@ public class NorwegianIME extends InputMethodService
         TextEntryState.typedCharacter((char) primaryCode, true);
         if (TextEntryState.getState() == TextEntryState.STATE_PUNCTUATION_AFTER_ACCEPTED 
                 && primaryCode != KEYCODE_ENTER) {
-        	if(mSwapColon || !":".equals(String.valueOf((char)primaryCode)))
+        	if(mSwapColon || !":".equals(String.valueOf((char)primaryCode)) && !";".equals(String.valueOf((char)primaryCode)))
         		swapPunctuationAndSpace();
         } else if (isPredictionOn() && primaryCode == ' ') { 
         //else if (TextEntryState.STATE_SPACE_AFTER_ACCEPTED) {
@@ -892,7 +892,8 @@ public class NorwegianIME extends InputMethodService
         //|| mCorrectionMode == mSuggest.CORRECTION_FULL;
         CharSequence typedWord = mWord.getTypedWord();
         // If we're in basic correct
-        boolean typedWordValid = mSuggest.isValidWord(typedWord);
+        boolean typedWordValid = mSuggest.isValidWord(typedWord) ||
+                (preferCapitalization() && mSuggest.isValidWord(typedWord.toString().toLowerCase()));
         if (mCorrectionMode == Suggest.CORRECTION_FULL) {
             correctionAvailable |= typedWordValid;
         }
@@ -1046,6 +1047,8 @@ public class NorwegianIME extends InputMethodService
                 mInputView.startPlaying(text.toString());
             }
         }
+        if(mSwipeEnabled)
+        	sendSpace();
     }
     
     public void swipeLeft() {

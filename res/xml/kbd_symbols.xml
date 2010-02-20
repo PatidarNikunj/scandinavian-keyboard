@@ -133,6 +133,6 @@
         <Key android:keyLabel="." android:keyWidth="15%p" />
         <Key android:codes="10" android:keyIcon="@drawable/sym_keyboard_return" android:keyWidth="20%p" android:keyEdgeFlags="right"
                 android:iconPreview="@drawable/sym_keyboard_feedback_return"
-                />
+                android:popupKeyboard="@xml/popup_smileys"/>
     </Row>
 </Keyboard>

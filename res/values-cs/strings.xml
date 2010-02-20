@@ -89,10 +89,10 @@
     <string name="touch_and_hold" msgid="6154166367273010534"><font size="17"><b>"Přidržením klávesy zobrazte možnosti"\n</b></font><font size="3">\n</font>"Použijte interpunkční znaménka a diakritiku."</string>
     <string name="keyboard_settings" msgid="4585753477617374032"><font size="17"><b>"Nastavení klávesnice"\n</b></font><font size="3">\n</font>"Dotkněte se klávesy "<b>"?123"</b>" a přidržte ji."</string>
     <string name="popular_domain_0" msgid="3745279225122472969">".com"</string>
-    <string name="popular_domain_1" msgid="1370572248164278467">".net"</string>
+    <string name="popular_domain_1" msgid="1370572248164278467">".cz"</string>
     <string name="popular_domain_2" msgid="3036812463748402878">".org"</string>
-    <string name="popular_domain_3" msgid="8718639560809452028">".biz"</string>
-    <string name="popular_domain_4" msgid="35359437471311470">".cz"</string>
+    <string name="popular_domain_3" msgid="8718639560809452028">".net"</string>
+    <string name="popular_domain_4" msgid="35359437471311470">".eu"</string>
     <string name="user_dict_settings_titlebar" msgid="765659257455000490">"Uživatelský slovník"</string>
     <string name="user_dict_settings_title" msgid="8357027437499042191">"Uživatelský slovník"</string>
     <string name="user_dict_settings_summary" msgid="2460427065601355471">"Přidat nebo odebrat slova z uživatelského slovníku"</string>
@@ -102,4 +102,5 @@
     <string name="user_dict_settings_context_menu_edit_title" msgid="2210564879320004837">"Upravit"</string>
     <string name="user_dict_settings_context_menu_delete_title" msgid="9140703913776549054">"Smazat"</string>
     <string name="user_dict_settings_empty_text" msgid="6209268025109242806">"V uživatelském slovníku nejsou žádná slova. Slovo můžete přidat pomocí nabídky."</string>
+	<string name="fast_scroll_alphabet" msgid="5433275485499039199">" AÁBCČDĎEÉĚFGHCHIÍJKLMNŇOÓPQRŘSŠTŤUÚVWXYÝZŽ"</string>
 </resources>

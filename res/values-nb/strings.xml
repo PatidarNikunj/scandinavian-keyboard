@@ -15,7 +15,7 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="english_ime_name" msgid="7252517407088836577">"Skandinavisk Skjermtastatur"</string>
+    <string name="english_ime_name" msgid="7252517407088836577">"Skandinavisk skjermtastatur"</string>
     <string name="english_ime_settings" msgid="6661589557206947774">"Innstillinger for skandinavisk skjermtastatur"</string>
     <string name="vibrate_on_keypress" msgid="5258079494276955460">"Vibrer ved tastetrykk"</string>
     <string name="sound_on_keypress" msgid="6093592297198243644">"Lyd ved tastetrykk"</string>
@@ -102,4 +102,5 @@
     <string name="user_dict_settings_context_menu_edit_title" msgid="2210564879320004837">"Rediger"</string>
     <string name="user_dict_settings_context_menu_delete_title" msgid="9140703913776549054">"Slett"</string>
     <string name="user_dict_settings_empty_text" msgid="6209268025109242806">"Ordlisten er tom. Du kan legge til ord i menyen."</string>
+	<string name="fast_scroll_alphabet" msgid="5433275485499039199">" ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ"</string>
 </resources>

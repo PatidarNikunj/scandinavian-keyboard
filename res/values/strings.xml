@@ -48,10 +48,10 @@
     <string name="dictionary_market">Download dictionary</string>
     <string name="auto_dictionary">Enable auto dictionary</string>
     <string name="auto_dictionary_summary">Automatically saves often used words in user dictionary</string>
-    <string name="space_after_prediction">Swap colon and space</string>
-    <string name="space_after_prediction_summary">When colon is pressed after space, place it before</string>
-    <string name="swap_colon">Insert space</string>
-    <string name="swap_colon_summary">Insert space after a predicted word is selected</string>
+    <string name="space_after_prediction">Insert space</string>
+    <string name="space_after_prediction_summary">Insert space after a predicted word is selected</string>
+    <string name="swap_colon">Swap colon and space</string>
+    <string name="swap_colon_summary">When colon/semicolon is pressed after space, place it before</string>
     
     <!-- Option to enable using nearby keys when correcting/predicting -->
     <string name="hit_correction">Correct typing errors</string>
@@ -264,6 +264,14 @@ Homepage:&lt;br&gt;
 &lt;br&gt;
 &lt;b&gt;Changelog&lt;/b&gt;&lt;br&gt;
 &lt;br&gt;
+1.4.1&lt;br&gt;
+· High resolution images&lt;br&gt;
+· Replaced internal dependencies so it can be built with the SDK&lt;br&gt;
+· Built with 1.6 SDK&lt;br&gt;
+· Fixed: Settings for insert space and swap colon were swapped&lt;br&gt;
+· Added semicolon to the option for swap colon and space&lt;br&gt;
+· Added smiley popup to enter in symbols mode&lt;br&gt;
+&lt;br&gt;
 1.4.0&lt;br&gt;
 · User dictionary works for all&lt;br&gt;
 · Swipe ability&lt;br&gt;
@@ -327,4 +335,6 @@ Homepage:&lt;br&gt;
     <string name="user_dict_settings_context_menu_delete_title">Delete</string>
     <!-- User dictionary settings. The text to show when there are no user-defined words in the dictionary -->
     <string name="user_dict_settings_empty_text">You do not have any words in the user dictionary. You can add a word through the menu or by pressing and holding at the leftmost word in the suggestions above the keyboard.</string>
+	
+	<string name="fast_scroll_alphabet">\u0020ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
 </resources>

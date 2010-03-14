@@ -23,18 +23,9 @@
             android:title="@string/help"
             />
 
-    <CheckBoxPreference
-            android:key="vibrate_on"
-            android:title="@string/vibrate_on_keypress"
-            android:persistent="true"
-            android:defaultValue="true"
-            />
-
     <Preference
-            android:key="vibrate_duration"
-            android:title="@string/vibrate_duration"
-            android:persistent="true"
-            android:defaultValue="@integer/vibrate_duration_ms"
+            android:key="vibrate_options"
+            android:title="@string/vibrate_options"
             />
 
     <CheckBoxPreference
@@ -50,23 +41,94 @@
             android:defaultValue="true"
             />
 
-    <CheckBoxPreference
-            android:key="swipe_enabled"
-            android:title="@string/enable_swipe"
-            android:summary="@string/enable_swipe_summary"
-            android:persistent="true"
-            android:defaultValue="true"
-            />
-            
-        <ListPreference
-            android:key="skin"
-            android:title="@string/skin"
-            android:summary="@string/skin_summary"
-            android:entries="@array/skin_entries"
-            android:entryValues="@array/skin_values"
-            android:persistent="true"
-            android:defaultValue="@string/preferences_skin_default_value"
-            />
+    <PreferenceScreen 
+            android:title="@string/swipe_settings"
+            android:summary="@string/swipe_settings_summary">
+
+        <PreferenceCategory
+                android:title="@string/swipe_settings"
+                android:key="swipe_settings">
+    
+            <CheckBoxPreference
+                android:key="swipe_enabled"
+                android:title="@string/enable_swipe"
+                android:summary="@string/enable_swipe_summary"
+                android:persistent="true"
+                android:defaultValue="true"
+                />
+    
+            <ListPreference
+                android:key="swipe_up"
+                android:title="@string/swipe_up"
+                android:entries="@array/swipe_options"
+                android:entryValues="@array/swipe_options_values"
+                android:persistent="true"
+                android:defaultValue="@string/swipe_up_default"
+                android:dependency="swipe_enabled"
+                />
+    
+            <ListPreference
+                android:key="swipe_down"
+                android:title="@string/swipe_down"
+                android:entries="@array/swipe_options"
+                android:entryValues="@array/swipe_options_values"
+                android:persistent="true"
+                android:defaultValue="@string/swipe_down_default"
+                android:dependency="swipe_enabled"
+                />
+    
+            <ListPreference
+                android:key="swipe_left"
+                android:title="@string/swipe_left"
+                android:entries="@array/swipe_options"
+                android:entryValues="@array/swipe_options_values"
+                android:persistent="true"
+                android:defaultValue="@string/swipe_left_default"
+                android:dependency="swipe_enabled"
+                />
+    
+            <ListPreference
+                android:key="swipe_right"
+                android:title="@string/swipe_right"
+                android:entries="@array/swipe_options"
+                android:entryValues="@array/swipe_options_values"
+                android:persistent="true"
+                android:defaultValue="@string/swipe_right_default"
+                android:dependency="swipe_enabled"
+                />
+
+	        <com.android.inputmethod.norwegian.ListPreferenceMultiSelect
+	            android:key="swipe_keyboard_layout"
+	            android:title="@string/swipe_keyboard_layout"
+	            android:entries="@array/keyboard_layouts"
+	            android:entryValues="@array/keyboard_layouts_values"
+	            android:persistent="true"
+	            android:defaultValue="#ALL#"
+	            android:dependency="swipe_enabled"
+	            />
+
+	        <com.android.inputmethod.norwegian.ListPreferenceMultiSelect
+	            android:key="swipe_dictionary"
+	            android:title="@string/swipe_dictionary"
+	            android:entries="@array/keyboard_layouts"
+	            android:entryValues="@array/keyboard_layouts_values"
+	            android:persistent="true"
+                android:defaultValue="#ALL#"
+                android:dependency="swipe_enabled"
+	            />
+
+        </PreferenceCategory>
+    </PreferenceScreen>
+
+    <ListPreference
+        android:key="skin"
+        android:title="@string/skin"
+        android:summary="@string/skin_summary"
+        android:entries="@array/skin_entries"
+        android:entryValues="@array/skin_values"
+        android:persistent="true"
+        android:defaultValue="@string/preferences_skin_default_value"
+        />
 
     <PreferenceCategory
             android:title="@string/language_category"
@@ -95,8 +157,8 @@
             android:title="@string/dictionary"
             android:entries="@array/keyboard_layouts"
             android:entryValues="@array/keyboard_layouts_values"
-            android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
             android:persistent="true"
+            android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
             android:dependency="dictionary_manually"
             />
 
@@ -144,10 +206,27 @@
             android:dependency="show_suggestions"
             />
 
+        <Preference
+            android:key="auto_dictionary_options"
+            android:title="@string/auto_dictionary_options"
+            android:summary="@string/auto_dictionary_options_summary"
+            android:dependency="show_suggestions"
+            />
+
         <CheckBoxPreference
-            android:key="auto_dictionary_enabled"
-            android:title="@string/auto_dictionary"
-            android:summary="@string/auto_dictionary_summary"
+            android:key="space_after_prediction"
+            android:title="@string/space_after_prediction"
+            android:summary="@string/space_after_prediction_summary"
+            android:persistent="true"
+            android:defaultValue="true"
+            android:dependency="show_suggestions"
+            />
+
+        <CheckBoxPreference
+            android:key="at_is_word_separator"
+            android:title="@string/at_is_word_separator"
+            android:summaryOff="@string/at_is_word_separator_summary_unchecked"
+            android:summaryOn="@string/at_is_word_separator_summary_checked"
             android:persistent="true"
             android:defaultValue="true"
             android:dependency="show_suggestions"
@@ -157,14 +236,6 @@
             android:key="swap_colon"
             android:title="@string/swap_colon"
             android:summary="@string/swap_colon_summary"
-            android:persistent="true"
-            android:defaultValue="true"
-            />
-
-        <CheckBoxPreference
-            android:key="space_after_prediction"
-            android:title="@string/space_after_prediction"
-            android:summary="@string/space_after_prediction_summary"
             android:persistent="true"
             android:defaultValue="true"
             />

@@ -25,15 +25,15 @@
     android:keyHeight="@dimen/key_height"
     >
 
-    <Row android:keyWidth="8.3%p">
-        <Key android:codes="225" android:keyLabel="á"
+    <Row android:keyWidth="9.1%p">
+        <Key android:codes="113" android:keyLabel="q"
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_q"
-                android:keyEdgeFlags="left" android:keyWidth="8.2%p"/>
-        <Key android:keyLabel="š"
+                android:keyEdgeFlags="left"/>
+        <Key android:codes="119" android:keyLabel="w"
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_w"
-        android:keyWidth="8.2%p"/>
+        />
         <Key android:codes="101" android:keyLabel="e"
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_e"
@@ -44,9 +44,9 @@
         <Key android:codes="116" android:keyLabel="t"
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_t"/>
-        <Key android:keyLabel="ŧ"
+        <Key android:codes="121" android:keyLabel="y"
                 android:popupKeyboard="@xml/kbd_popup_template"
-                android:popupCharacters="@string/alternates_for_t_se"
+                android:popupCharacters="@string/alternates_for_y"
         />
         <Key android:codes="117" android:keyLabel="u"
                 android:popupKeyboard="@xml/kbd_popup_template"
@@ -64,19 +64,18 @@
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_p"
         />
-        <Key android:codes="229" android:keyLabel="å" android:keyWidth="8.2%p"/>
-        <Key android:keyLabel="ŋ" android:keyEdgeFlags="right" android:keyWidth="8.2%p"/>
+        <Key android:codes="240" android:keyLabel="ð" android:keyEdgeFlags="right"/>
     </Row>
     
-    <Row android:keyWidth="8.3%p">
+    <Row>
         <Key android:codes="97" android:keyLabel="a" 
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_a"
-                android:keyEdgeFlags="left" android:keyWidth="8.2%p"/><!-- android:horizontalGap="5%p" -->
+                android:keyEdgeFlags="left"/><!-- android:horizontalGap="5%p" -->
         <Key android:codes="115" android:keyLabel="s"
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_s"
-        android:keyWidth="8.2%p"/>
+        />
         <Key android:codes="100" android:keyLabel="d"
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_d"/>
@@ -90,14 +89,10 @@
         <Key android:codes="108" android:keyLabel="l" 
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_l"/>
-        <Key android:codes="248" android:keyLabel="ø"
-                android:popupKeyboard="@xml/kbd_popup_template"
-                android:popupCharacters="@string/alternates_for_oe"/>
         <Key android:codes="230" android:keyLabel="æ"
                 android:popupKeyboard="@xml/kbd_popup_template"
-                android:popupCharacters="@string/alternates_for_ae" android:keyWidth="8.2%p"/>
-        <Key android:keyLabel="đ"
-                android:keyEdgeFlags="right" android:keyWidth="8.2%p"/>
+                android:popupCharacters="@string/alternates_for_ae"
+                android:keyEdgeFlags="right"/>
     </Row>
     
     <Row android:keyWidth="9.25%p">
@@ -105,11 +100,10 @@
                 android:keyWidth="12.5%p" android:isModifier="true"
                 android:iconPreview="@drawable/sym_keyboard_feedback_shift"
                 android:isSticky="true" android:keyEdgeFlags="left"/>
-        <Key android:keyLabel="ž"/>
         <Key android:codes="122" android:keyLabel="z"
                 android:popupKeyboard="@xml/kbd_popup_template"
-                android:popupCharacters="@string/alternates_for_z_se"/>
-        <Key android:keyLabel="č"/>
+                android:popupCharacters="@string/alternates_for_z"/>
+        <Key android:codes="120" android:keyLabel="x"/>
         <Key android:codes="99" android:keyLabel="c"
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="@string/alternates_for_c"
@@ -121,6 +115,7 @@
                 android:popupCharacters="@string/alternates_for_n"
         />
         <Key android:codes="109" android:keyLabel="m"/>
+        <Key android:codes="254" android:keyLabel="þ"/>
         <Key android:codes="-5" android:keyIcon="@drawable/sym_keyboard_delete" 
                 android:keyWidth="12.5%p" android:keyEdgeFlags="right" 
                 android:iconPreview="@drawable/sym_keyboard_feedback_delete"

@@ -35,7 +35,6 @@ import android.os.SystemClock;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.text.AutoText;
-import android.text.ClipboardManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.PrintWriterPrinter;
@@ -72,18 +71,27 @@ public class NorwegianIME extends InputMethodService
     private static final String PREF_KEYBOARD_LAYOUT = "keyboard_layout";
     private static final String PREF_DICTIONARY_MANUALLY = "dictionary_manually";
     private static final String PREF_DICTIONARY = "dictionary";
-    private static final String PREF_VIBRATE_ON = "vibrate_on";
+    private static final String PREF_VIBRATE_ON = "vibrate_enable";
     private static final String PREF_VIBRATE_DURATION = "vibrate_duration";
+    private static final String PREF_VIBRATE_BUG_FIX = "vibrate_bug_fix";
     private static final String PREF_SOUND_ON = "sound_on";
     private static final String PREF_AUTO_CAP = "auto_cap";
     private static final String PREF_SWIPE_ENABLED = "swipe_enabled";
+    private static final String PREF_SWIPE_UP = "swipe_up";
+    private static final String PREF_SWIPE_DOWN = "swipe_down";
+    private static final String PREF_SWIPE_LEFT = "swipe_left";
+    private static final String PREF_SWIPE_RIGHT = "swipe_right";
+    private static final String PREF_SWIPE_KEYBOARD_LAYOUT = "swipe_keyboard_layout";
+    private static final String PREF_SWIPE_DICTIONARY = "swipe_dictionary";
     private static final String PREF_SKIN = "skin";
     private static final String PREF_QUICK_FIXES = "quick_fixes";
     private static final String PREF_SHOW_SUGGESTIONS = "show_suggestions";
     private static final String PREF_AUTO_COMPLETE = "auto_complete";
-    private static final String PREF_AUTO_DICTIONARY_ENABLED = "auto_dictionary_enabled";
+    private static final String PREF_AUTO_DICTIONARY_ENABLE = "auto_dictionary_enable";
+    private static final String PREF_AUTO_DICTIONARY_LIMIT = "auto_dictionary_limit";
     private static final String PREF_SPACE_AFTER_PREDICTION = "space_after_prediction";
     private static final String PREF_SWAP_COLON = "swap_colon";
+    private static final String PREF_AT_IS_WORD_SEPARATOR = "at_is_word_separator";
 
     private static final int MSG_UPDATE_SUGGESTIONS = 0;
     private static final int MSG_START_TUTORIAL = 1;
@@ -122,7 +130,7 @@ public class NorwegianIME extends InputMethodService
     KeyboardSwitcher mKeyboardSwitcher;
     
     private UserDictionary mUserDictionary;
-    private ExpandableDictionary mAutoDictionary;
+    private AutoDictionary mAutoDictionary;
     
     private String mLocale;
 
@@ -139,15 +147,24 @@ public class NorwegianIME extends InputMethodService
     private int mKeyboardLayout;
     private boolean mDictionaryManually;
     private int mDictionary;
+    private CharSequence[] mAvailableDictionaries;
+    private CharSequence[] mAvailableDictionaryValues;
     private boolean mVibrateOn;
     private boolean mSoundOn;
     private boolean mAutoCap;
     private boolean mSwipeEnabled;
+    private int mSwipeUp;
+    private int mSwipeDown;
+    private int mSwipeLeft;
+    private int mSwipeRight;
+    private String mSwipeKeyboardLayout;
+    private String mSwipeDictionary;
     private String mSkin;
     private String mLastSkin;
     private boolean mQuickFixes;
     private boolean mShowSuggestions;
     private boolean mAutoDictionaryEnabled;
+    private int mAutoDictionaryLimit;
     private boolean mSpaceAfterPrediction;
     private boolean mSwapColon;
     private int     mCorrectionMode;
@@ -162,9 +179,10 @@ public class NorwegianIME extends InputMethodService
     private Tutorial mTutorial;
 
     private Vibrator mVibrator;
-    private long mVibrateDuration;
+    private long mVibrateDuration = 0;
     private long mVibrateStart;
     private Timer mVibrateTimer;
+    private boolean mVibrateBugFix;
 
     private AudioManager mAudioManager;
     // Align sound effect volume on music volume
@@ -230,8 +248,14 @@ public class NorwegianIME extends InputMethodService
         int resId = 0x7f030000;
         if(dictionary == 1) pkgName = "com.android.inputmethod.norwegian.danishdictionary";
         else if(dictionary == 2) {
-            pkgName = "com.android.inputmethod.latin";
+        	pkgName = "com.android.inputmethod.latin";
             resId = 0x7f050000;
+            try {
+                getPackageManager().getResourcesForApplication(pkgName);
+            } catch(NameNotFoundException notFound) {
+            	pkgName = "com.android.inputmethod.norwegian.englishdictionary";
+            	resId = 0x7f030000;
+            }
         }
         else if(dictionary == 3) pkgName = "com.android.inputmethod.norwegian.swedishdictionary";
         else if(dictionary == 4) pkgName = "com.android.inputmethod.norwegian.finnishdictionary";
@@ -256,6 +280,7 @@ public class NorwegianIME extends InputMethodService
                 mSuggest.setAutoDictionary(mAutoDictionary);
                 mWordSeparators = getResources().getString(R.string.word_separators);
                 mSentenceSeparators = getResources().getString(R.string.sentence_separators);
+                findAvailableDictionaries();
             }
             if(resId != 0) pkgNameLast = pkgName;
             else pkgNameLast = "";
@@ -857,6 +882,7 @@ public class NorwegianIME extends InputMethodService
     private void toggleCapsLock() {
         mCapsLock = !mCapsLock;
         if (mKeyboardSwitcher.isAlphabetMode()) {
+        	mInputView.setShifted(mCapsLock); //Needed for 1.5, since keys don't get updated at longpress.
             ((NorwegianKeyboard) mInputView.getKeyboard()).setShiftLocked(mCapsLock);
         }
     }
@@ -1040,34 +1066,100 @@ public class NorwegianIME extends InputMethodService
     }
 
     public void swipeRight() {
-        if (NorwegianKeyboardView.DEBUG_AUTO_PLAY) {
-            ClipboardManager cm = ((ClipboardManager)getSystemService(CLIPBOARD_SERVICE));
-            CharSequence text = cm.getText();
-            if (!TextUtils.isEmpty(text)) {
-                mInputView.startPlaying(text.toString());
-            }
-        }
-        if(mSwipeEnabled)
-        	sendSpace();
+//        if (NorwegianKeyboardView.DEBUG_AUTO_PLAY) {
+//            ClipboardManager cm = ((ClipboardManager)getSystemService(CLIPBOARD_SERVICE));
+//            CharSequence text = cm.getText();
+//            if (!TextUtils.isEmpty(text)) {
+//                mInputView.startPlaying(text.toString());
+//            }
+//        }
+        swipe(mSwipeRight);
     }
     
     public void swipeLeft() {
-        if(mSwipeEnabled)
-            handleBackspace();
+    	swipe(mSwipeLeft);
     }
 
     public void swipeDown() {
         //handleClose();
-        if(mSwipeEnabled && 96 < lastKeyPressed && lastKeyPressed < 123 || validKeyCodes.contains(lastKeyPressed))
-            onKey(letterSymbolArray.get(lastKeyPressed), new int[] { letterSymbolArray.get(lastKeyPressed) });
+    	swipe(mSwipeDown);
     }
 
     public void swipeUp() {
         //launchSettings();
-        if(mSwipeEnabled && lastKeyPressed > 0) {
-            mInputView.setShifted(!mInputView.isShifted());
-            onKey(lastKeyPressed, new int[] { lastKeyPressed });
-        }
+    	swipe(mSwipeUp);
+    }
+    
+    public void swipe(int type) {
+    	if(mSwipeEnabled) {
+	    	switch(type) {
+	    	case 1:
+	            if(lastKeyPressed > 0) {
+	                mInputView.setShifted(!mInputView.isShifted());
+	                onKey(lastKeyPressed, new int[] { lastKeyPressed });
+	            }
+	    		return;
+	    	case 2:
+	            if(96 < lastKeyPressed && lastKeyPressed < 123 || validKeyCodes.contains(lastKeyPressed))
+	                onKey(letterSymbolArray.get(lastKeyPressed), new int[] { letterSymbolArray.get(lastKeyPressed) });
+	    		return;
+	    	case 3:
+	    		handleBackspace();
+	    		return;
+	    	case 4:
+	    		onKey(KEYCODE_SPACE, new int[] { KEYCODE_SPACE } );
+	    		return;
+	    	case 6:
+	    		handleClose();
+	    		return;
+	    	case 7:
+	    	case 8:
+	    		int newKeyboardLayoutIndex = 0;
+	    		CharSequence[] keyboardLayouts = ListPreferenceMultiSelect.parseStoredValue(mSwipeKeyboardLayout);
+	    		for (int i = 0; i < keyboardLayouts.length; i++)
+	    			if(mKeyboardLayout == Integer.parseInt(keyboardLayouts[i].toString()))
+	    				newKeyboardLayoutIndex = i;
+	    		newKeyboardLayoutIndex = newKeyboardLayoutIndex + (type == 7 ? -1 : 1);
+	    		
+	    		if(newKeyboardLayoutIndex >= keyboardLayouts.length)
+	    			newKeyboardLayoutIndex = 0;
+	    		else if(newKeyboardLayoutIndex < 0)
+	    			newKeyboardLayoutIndex = keyboardLayouts.length - 1;
+	    		changePreference(PREF_KEYBOARD_LAYOUT, keyboardLayouts[newKeyboardLayoutIndex].toString());
+	    		return;
+	    	case 9:
+	    	case 10:
+	    		int newDictionaryIndex = 0;
+	    		CharSequence[] selectedDictionaries = ListPreferenceMultiSelect.parseStoredValue(mSwipeDictionary);
+	    		for (int i = 0; i < selectedDictionaries.length; i++)
+	    			if(mDictionary == Integer.parseInt(selectedDictionaries[i].toString()))
+	    				newDictionaryIndex = i;
+	    		newDictionaryIndex = newDictionaryIndex + (type == 9 ? -1 : 1);
+	    		
+	    		if(newDictionaryIndex >= selectedDictionaries.length)
+	    			newDictionaryIndex = 0;
+	    		else if(newDictionaryIndex < 0)
+	    			newDictionaryIndex = selectedDictionaries.length - 1;
+	    		if(!mDictionaryManually) {
+	    			mDictionaryManually = true;
+	    			changePreference(PREF_DICTIONARY_MANUALLY, true);
+	    		}
+	    		changePreference(PREF_DICTIONARY, selectedDictionaries[newDictionaryIndex].toString());
+	    		return;
+	    	case 11:
+	    		getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT));
+	    		return;
+	    	case 12:
+	    		getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT));
+	    		return;
+	    	case 13:
+	    		getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP));
+	    		return;
+	    	case 14:
+	    		getCurrentInputConnection().sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN));
+	    		return;
+	    	}
+    	}
     }
 
     public void onPress(int primaryCode) {
@@ -1126,36 +1218,33 @@ public class NorwegianIME extends InputMethodService
     }
 
     private void vibrate() {
-        if (!mVibrateOn) {
+        if (!mVibrateOn || mVibrateDuration > 100)
             return;
-        }
-        if (mVibrator == null) {
-            mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        }
-        if (mVibrateTimer == null) {
-            mVibrateTimer = new Timer();
-        }
-
-        mVibrator.vibrate(mVibrateDuration);
-        mVibrateStart = (new Date()).getTime();
         
-        mVibrateTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if(mVibrateStart == 0)
-                {
-                    this.cancel();
-                    mVibrateTimer.purge();
-                }
-                else if((new Date()).getTime() > (mVibrateStart + mVibrateDuration))
-                {
-                    mVibrateStart = 0;
-                    mVibrator.cancel();
-                    this.cancel();
-                    mVibrateTimer.purge();
-                }
-            }
-        }, 1, 1);
+        if (mVibrator == null)
+            mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        
+        mVibrator.vibrate(mVibrateDuration);
+        
+        if(mVibrateBugFix) {
+	        if (mVibrateTimer == null)
+	            mVibrateTimer = new Timer();
+	        mVibrateStart = (new Date()).getTime();
+	        mVibrateTimer.schedule(new TimerTask() {
+	            @Override
+	            public void run() {
+	                if(mVibrateStart == 0) {
+	                    this.cancel();
+	                    mVibrateTimer.purge();
+	                } else if((new Date()).getTime() > (mVibrateStart + mVibrateDuration)) {
+	                    mVibrateStart = 0;
+	                    mVibrator.cancel();
+	                    this.cancel();
+	                    mVibrateTimer.purge();
+	                }
+	            }
+	        }, mVibrateDuration, 1);
+        }
     }
 
     private void checkTutorial(String privateImeOptions) {
@@ -1197,14 +1286,22 @@ public class NorwegianIME extends InputMethodService
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         mVibrateOn = sp.getBoolean(PREF_VIBRATE_ON, true);
         mVibrateDuration = sp.getInt(PREF_VIBRATE_DURATION, getResources().getInteger(R.integer.vibrate_duration_ms));
+        mVibrateBugFix = sp.getBoolean(PREF_VIBRATE_BUG_FIX, false);
         mSoundOn = sp.getBoolean(PREF_SOUND_ON, false);
         mAutoCap = sp.getBoolean(PREF_AUTO_CAP, true);
+        
         mSwipeEnabled = sp.getBoolean(PREF_SWIPE_ENABLED, true);
+        mSwipeUp = Integer.parseInt(sp.getString(PREF_SWIPE_UP, getResources().getString(R.string.swipe_up_default)));
+        mSwipeDown = Integer.parseInt(sp.getString(PREF_SWIPE_DOWN, getResources().getString(R.string.swipe_down_default)));
+        mSwipeLeft = Integer.parseInt(sp.getString(PREF_SWIPE_LEFT, getResources().getString(R.string.swipe_left_default)));
+        mSwipeRight = Integer.parseInt(sp.getString(PREF_SWIPE_RIGHT, getResources().getString(R.string.swipe_right_default)));
+        mSwipeKeyboardLayout = sp.getString(PREF_SWIPE_KEYBOARD_LAYOUT, getResources().getString(R.string.swipe_keyboard_layout));
+        mSwipeDictionary = sp.getString(PREF_SWIPE_DICTIONARY, getResources().getString(R.string.swipe_dictionary));
         mSkin = sp.getString(PREF_SKIN, "input_standard");
         
-        mKeyboardLayout = Integer.parseInt(sp.getString(PREF_KEYBOARD_LAYOUT, "0"));
+        mKeyboardLayout = Integer.parseInt(sp.getString(PREF_KEYBOARD_LAYOUT, getResources().getString(R.string.preferences_keyboard_layout_list_default_value)));
         mDictionaryManually = sp.getBoolean(PREF_DICTIONARY_MANUALLY, false);
-        mDictionary = Integer.parseInt(sp.getString(PREF_DICTIONARY, "0"));
+        mDictionary = Integer.parseInt(sp.getString(PREF_DICTIONARY, getResources().getString(R.string.preferences_keyboard_layout_list_default_value)));
         createLetterSymbolArray();
         
         mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, false);
@@ -1220,9 +1317,17 @@ public class NorwegianIME extends InputMethodService
                 : ((mQuickFixes || mShowSuggestions) ? Suggest.CORRECTION_BASIC : Suggest.CORRECTION_NONE);
         if(mKeyboardLayout != 2 && !mDictionaryManually || mDictionary != 2 && mDictionaryManually)
             mQuickFixes = false;
-        mAutoDictionaryEnabled = sp.getBoolean(PREF_AUTO_DICTIONARY_ENABLED, true);
+        mAutoDictionaryEnabled = sp.getBoolean(PREF_AUTO_DICTIONARY_ENABLE, true) && mShowSuggestions;
+        mAutoDictionaryLimit = Integer.parseInt(sp.getString(PREF_AUTO_DICTIONARY_LIMIT, getResources().getString(R.string.auto_dictionary_limit_default)));
+        mAutoDictionary.loadSettings();
         mSpaceAfterPrediction = sp.getBoolean(PREF_SPACE_AFTER_PREDICTION, true);;
         mSwapColon = sp.getBoolean(PREF_SWAP_COLON, true);
+        
+        boolean atIsWordSeparator = sp.getBoolean(PREF_AT_IS_WORD_SEPARATOR, true);
+        if(!atIsWordSeparator)
+            mWordSeparators = mWordSeparators.replace("@", "");
+        else if(!mWordSeparators.contains("@"))
+        	mWordSeparators += "@";
     }
 
     private void showOptionsMenu() {
@@ -1299,12 +1404,8 @@ public class NorwegianIME extends InputMethodService
     	    		   new DialogInterface.OnClickListener() {
 
     	            public void onClick(DialogInterface di, int position) {
-    	            	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(NorwegianIME.this);
-                        SharedPreferences.Editor editor = sp.edit();
-                        editor.putString(PREF_KEYBOARD_LAYOUT, getResources().getTextArray(R.array.keyboard_layouts_values)[position].toString());
-                        editor.commit();
+                        changePreference(PREF_KEYBOARD_LAYOUT, getResources().getTextArray(R.array.keyboard_layouts_values)[position].toString());
                         di.dismiss();
-                        onStartInputView(getCurrentInputEditorInfo(), true);
     	           }
     	       });
         mOptionsDialog = builder.create();
@@ -1317,51 +1418,22 @@ public class NorwegianIME extends InputMethodService
         mOptionsDialog.show();
     }
 
-    private void launchChooseDictionary() {
-        CharSequence[] dictionaries = getResources().getTextArray(R.array.keyboard_layouts);
-        CharSequence[] dictionaryValues = getResources().getTextArray(R.array.keyboard_layouts_values);
-        String[] pkgNames = { "com.android.inputmethod.norwegian.norwegiandictionary", "com.android.inputmethod.norwegian.danishdictionary", "com.android.inputmethod.latin", "com.android.inputmethod.norwegian.swedishdictionary", "com.android.inputmethod.norwegian.finnishdictionary" };
-        ArrayList<Integer> foundList = new ArrayList<Integer>();
-        for( int i = 0; i < pkgNames.length; i++) {
-            Resources res;
-            Boolean found = true;
-            try {
-                res = getPackageManager().getResourcesForApplication(pkgNames[i]);
-            } catch(NameNotFoundException notFound) {
-                found = false;
-            }
-            if(found) foundList.add(i);
-        }
-        CharSequence[] availableDictionaries = new CharSequence[foundList.size()];
-        final CharSequence[] availableDictionaryValues = new CharSequence[foundList.size()];
-        for(int i = 0; i < foundList.size(); i++) {
-            for(int j = 0; j < dictionaries.length; j++) {
-                if(Integer.toString(foundList.get(i)).charAt(0) == dictionaryValues[j].charAt(0)) {
-                    availableDictionaries[i] = dictionaries[j];
-                    availableDictionaryValues[i] = dictionaryValues[j];
-                }
-            }
-        }
-        
+    private void launchChooseDictionary() {        
         int selectedDictionaryIndex = -1;
-        for(int i = 0; i < availableDictionaryValues.length; i++)
-            if(Integer.parseInt(availableDictionaryValues[i].toString()) == mDictionary)
+        for(int i = 0; i < mAvailableDictionaryValues.length; i++)
+            if(Integer.parseInt(mAvailableDictionaryValues[i].toString()) == mDictionary)
                 selectedDictionaryIndex = i;
         
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle("Change dictionary")
     	       .setCancelable(true)
     	       .setNegativeButton(android.R.string.cancel, null)
-    	       .setSingleChoiceItems(availableDictionaries, selectedDictionaryIndex,
+    	       .setSingleChoiceItems(mAvailableDictionaries, selectedDictionaryIndex,
     	    		   new DialogInterface.OnClickListener() {
 
     	            public void onClick(DialogInterface di, int position) {
-    	            	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(NorwegianIME.this);
-                        SharedPreferences.Editor editor = sp.edit();
-                        editor.putString(PREF_DICTIONARY, availableDictionaryValues[position].toString());
-                        editor.commit();
+    	            	changePreference(PREF_DICTIONARY, mAvailableDictionaryValues[position].toString());
                         di.dismiss();
-                        onStartInputView(getCurrentInputEditorInfo(), true);
     	            }
     	       });
         mOptionsDialog = builder.create();
@@ -1372,6 +1444,48 @@ public class NorwegianIME extends InputMethodService
         window.setAttributes(lp);
         window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         mOptionsDialog.show();
+    }
+    
+    private void findAvailableDictionaries() {
+        CharSequence[] dictionaries = getResources().getTextArray(R.array.keyboard_layouts);
+        CharSequence[] dictionaryValues = getResources().getTextArray(R.array.keyboard_layouts_values);
+        String[] pkgNames = { "com.android.inputmethod.norwegian.norwegiandictionary", "com.android.inputmethod.norwegian.danishdictionary", "com.android.inputmethod.latin", "com.android.inputmethod.norwegian.swedishdictionary", "com.android.inputmethod.norwegian.finnishdictionary" };
+        ArrayList<Integer> foundList = new ArrayList<Integer>();
+        for( int i = 0; i < pkgNames.length; i++) {
+            Boolean found = true;
+            try {
+                getPackageManager().getResourcesForApplication(pkgNames[i]);
+            } catch(NameNotFoundException notFound) {
+                found = false;
+            }
+            if(found) foundList.add(i);
+        }
+        mAvailableDictionaries = new CharSequence[foundList.size()];
+        mAvailableDictionaryValues = new CharSequence[foundList.size()];
+        for(int i = 0; i < foundList.size(); i++) {
+            for(int j = 0; j < dictionaries.length; j++) {
+                if(Integer.toString(foundList.get(i)).charAt(0) == dictionaryValues[j].charAt(0)) {
+                    mAvailableDictionaries[i] = dictionaries[j];
+                    mAvailableDictionaryValues[i] = dictionaryValues[j];
+                }
+            }
+        }
+    }
+    
+    private void changePreference(String preference, String value) {
+    	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(NorwegianIME.this);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(preference, value);
+        editor.commit();
+        onStartInputView(getCurrentInputEditorInfo(), true);
+    }
+    
+    private void changePreference(String preference, boolean value) {
+    	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(NorwegianIME.this);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean(preference, value);
+        editor.commit();
+        onStartInputView(getCurrentInputEditorInfo(), true);
     }
 
     private void changeKeyboardMode() {
@@ -1425,18 +1539,24 @@ public class NorwegianIME extends InputMethodService
 
     class AutoDictionary extends ExpandableDictionary {
         // If the user touches a typed word 2 times or more, it will become valid.
-        private static final int VALIDITY_THRESHOLD = 2 * FREQUENCY_FOR_PICKED;
+        private int VALIDITY_THRESHOLD = 2 * FREQUENCY_FOR_PICKED;
         // If the user touches a typed word 5 times or more, it will be added to the user dict.
-        private static final int PROMOTION_THRESHOLD = 5 * FREQUENCY_FOR_PICKED;
+        private int PROMOTION_THRESHOLD = 5 * FREQUENCY_FOR_PICKED;
 
         public AutoDictionary(Context context) {
             super(context);
+            this.loadSettings();
+        }
+        
+        public void loadSettings() {
+        	VALIDITY_THRESHOLD = mAutoDictionaryLimit * FREQUENCY_FOR_PICKED;
+        	PROMOTION_THRESHOLD = mAutoDictionaryLimit * FREQUENCY_FOR_PICKED;
         }
 
         @Override
         public boolean isValidWord(CharSequence word) {
             final int frequency = getWordFrequency(word);
-            return frequency > VALIDITY_THRESHOLD;
+            return frequency >= VALIDITY_THRESHOLD;
         }
 
         @Override
@@ -1444,9 +1564,10 @@ public class NorwegianIME extends InputMethodService
             final int length = word.length();
             // Don't add very short or very long words.
             if (length < 2 || length > getMaxWordLength()) return;
-            super.addWord(word, addFrequency);
             final int freq = getWordFrequency(word);
-            if (freq > PROMOTION_THRESHOLD) {
+            int newFreq = freq == -1 ? addFrequency : freq + addFrequency;
+            super.addWord(word, newFreq);
+            if (newFreq >= PROMOTION_THRESHOLD) {
                 NorwegianIME.this.promoteToUserDictionary(word, FREQUENCY_FOR_AUTO_ADD);
             }
         }
@@ -1541,6 +1662,3 @@ public class NorwegianIME extends InputMethodService
        }
     }
 }
-
-
-

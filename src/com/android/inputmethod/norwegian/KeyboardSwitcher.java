@@ -139,6 +139,7 @@ public class KeyboardSwitcher {
     }
     
     void setKeyboardMode(int mode, int imeOptions, boolean isSymbols, boolean changeIcons) {
+        mChangeIcons = changeIcons;
         mMode = mode;
         mImeOptions = imeOptions;
         mIsSymbols = isSymbols;
@@ -155,14 +156,13 @@ public class KeyboardSwitcher {
         mInputView.setKeyboard(keyboard);
         keyboard.setShifted(false);
         keyboard.setShiftLocked(keyboard.isShiftLocked());
-        mChangeIcons = changeIcons;
         keyboard.setImeOptions(mContext.getResources(), mMode, imeOptions, changeIcons);
     }
 
     private NorwegianKeyboard getKeyboard(KeyboardId id) {
         if (!mKeyboards.containsKey(id)) {
             NorwegianKeyboard keyboard = new NorwegianKeyboard(
-                mContext, id.mXml, id.mMode);
+                mContext, id.mXml, id.mMode, mChangeIcons);
             if (id.mEnableShiftLock) {
                 keyboard.enableShiftLock();
             }
@@ -180,27 +180,30 @@ public class KeyboardSwitcher {
         int kbd_layout;
         switch(mKeyboardLayout) {
             case 1:
-                 kbd_layout = R.xml.kbd_qwerty_da;
-                 break;
+                kbd_layout = R.xml.kbd_qwerty_da;
+                break;
             case 2:
-                 kbd_layout = R.xml.kbd_qwerty_en;
-                 break;
+                kbd_layout = R.xml.kbd_qwerty_en;
+                break;
             case 3:
             case 4:
-                 kbd_layout = R.xml.kbd_qwerty_sv;
-                 break;
+                kbd_layout = R.xml.kbd_qwerty_sv;
+                break;
             case 5:
-                 kbd_layout = R.xml.kbd_qwerty_fo;
-                 break;
+                kbd_layout = R.xml.kbd_qwerty_fo;
+                break;
             case 6:
-                 kbd_layout = R.xml.kbd_qwerty_fo2;
-                 break;
+                kbd_layout = R.xml.kbd_qwerty_fo2;
+                break;
             case 7:
-                 kbd_layout = R.xml.kbd_qwerty_de;
-                 break;
+                kbd_layout = R.xml.kbd_qwerty_de;
+                break;
             case 8:
-                 kbd_layout = R.xml.kbd_qwerty_se;
-                 break;
+                kbd_layout = R.xml.kbd_qwerty_se;
+                break;
+            case 9:
+            	kbd_layout = R.xml.kbd_qwerty_is;
+            	break;
             default:
                  kbd_layout = R.xml.kbd_qwerty_no;
         }

@@ -102,7 +102,7 @@
     
     <Row android:keyWidth="9.25%p">
         <Key android:codes="-1" android:keyIcon="@drawable/sym_keyboard_shift" 
-                android:keyWidth="13%p" android:isModifier="true"
+                android:keyWidth="13.3%p" android:isModifier="true"
                 android:iconPreview="@drawable/sym_keyboard_feedback_shift"
                 android:isSticky="true" android:keyEdgeFlags="left"/>
         <Key android:keyLabel="ž"/>
@@ -122,7 +122,7 @@
         />
         <Key android:codes="109" android:keyLabel="m"/>
         <Key android:codes="-5" android:keyIcon="@drawable/sym_keyboard_delete" 
-                android:keyWidth="13%p" android:keyEdgeFlags="right" 
+                android:keyWidth="13.3%p" android:keyEdgeFlags="right" 
                 android:iconPreview="@drawable/sym_keyboard_feedback_delete"
                 android:isRepeatable="true"/>
     </Row>

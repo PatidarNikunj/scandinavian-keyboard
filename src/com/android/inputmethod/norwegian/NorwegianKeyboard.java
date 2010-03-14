@@ -28,7 +28,6 @@ public class NorwegianKeyboard extends Keyboard {
     private Drawable mShiftLockIcon;
     private Drawable mShiftLockPreviewIcon;
     private Drawable mOldShiftIcon;
-    private Drawable mOldShiftPreviewIcon;
     private Key mShiftKey;
     private Key mEnterKey;
     private Key mDelKey;
@@ -46,16 +45,17 @@ public class NorwegianKeyboard extends Keyboard {
     
     static int sSpacebarVerticalCorrection;
     
-    private boolean mChangeIcons;
+    private boolean mDarkIcons;
     
-    public NorwegianKeyboard(Context context, int xmlLayoutResId) {
-        this(context, xmlLayoutResId, 0);
+    public NorwegianKeyboard(Context context, int xmlLayoutResId, boolean darkIcons) {
+        this(context, xmlLayoutResId, 0, darkIcons);
     }
 
-    public NorwegianKeyboard(Context context, int xmlLayoutResId, int mode) {
+    public NorwegianKeyboard(Context context, int xmlLayoutResId, int mode, boolean darkIcons) {
         super(context, xmlLayoutResId, mode);
+        mDarkIcons = darkIcons;
         Resources res = context.getResources();
-        mShiftLockIcon = res.getDrawable(R.drawable.sym_keyboard_shift_locked);
+        mShiftLockIcon = res.getDrawable(darkIcons ? R.drawable.sym_keyboard_shift_locked_dark : R.drawable.sym_keyboard_shift_locked);
         mShiftLockPreviewIcon = res.getDrawable(R.drawable.sym_keyboard_feedback_shift_locked);
         mShiftLockPreviewIcon.setBounds(0, 0, 
                 mShiftLockPreviewIcon.getIntrinsicWidth(),
@@ -94,11 +94,11 @@ public class NorwegianKeyboard extends Keyboard {
     }
     
     void setImeOptions(Resources res, int mode, int options) {
-        setImeOptions(res, mode, options, mChangeIcons);
+        setImeOptions(res, mode, options, mDarkIcons);
     }
     
-    void setImeOptions(Resources res, int mode, int options, boolean changeIcons) {
-        mChangeIcons = changeIcons;
+    void setImeOptions(Resources res, int mode, int options, boolean darkIcons) {
+        mDarkIcons = darkIcons;
         if (mEnterKey != null) {
             mEnterKey.text = null;
             switch (options&(EditorInfo.IME_MASK_ACTION|EditorInfo.IME_FLAG_NO_ENTER_ACTION)) {
@@ -120,12 +120,8 @@ public class NorwegianKeyboard extends Keyboard {
                 case EditorInfo.IME_ACTION_SEARCH:
                     mEnterKey.iconPreview = res.getDrawable(
                             R.drawable.sym_keyboard_feedback_search);
-                    if(changeIcons)
-                        mEnterKey.icon = res.getDrawable(
-                            R.drawable.sym_keyboard_search_dark);
-                    else
-                        mEnterKey.icon = res.getDrawable(
-                            R.drawable.sym_keyboard_search);
+                    mEnterKey.icon = res.getDrawable(
+                            darkIcons ? R.drawable.sym_keyboard_search_dark : R.drawable.sym_keyboard_search);
                     mEnterKey.label = null;
                     break;
                 case EditorInfo.IME_ACTION_SEND:
@@ -136,12 +132,8 @@ public class NorwegianKeyboard extends Keyboard {
                 default:
                     mEnterKey.iconPreview = res.getDrawable(
                             R.drawable.sym_keyboard_feedback_return);
-                    if(changeIcons)
-                        mEnterKey.icon = res.getDrawable(
-                            R.drawable.sym_keyboard_return_dark);
-                    else
-                        mEnterKey.icon = res.getDrawable(
-                            R.drawable.sym_keyboard_return);
+                    mEnterKey.icon = res.getDrawable(
+                            darkIcons ? R.drawable.sym_keyboard_return_dark : R.drawable.sym_keyboard_return);
                     mEnterKey.label = null;
                     if (mode == KeyboardSwitcher.MODE_IM)
                         mEnterKey.text = "\n";
@@ -155,9 +147,9 @@ public class NorwegianKeyboard extends Keyboard {
             }
         }
         
-        if(changeIcons) {
+        if(darkIcons) {
             if(mShiftKey != null)
-                mShiftKey.icon = res.getDrawable(R.drawable.sym_keyboard_shift_dark);
+                mShiftKey.icon = res.getDrawable(isShifted() ? R.drawable.sym_keyboard_shift_locked_dark : R.drawable.sym_keyboard_shift_dark);
             if(mDelKey !=null)
                 mDelKey.icon = res.getDrawable(R.drawable.sym_keyboard_delete_dark);
             if(mSpaceKey != null)
@@ -206,7 +198,6 @@ public class NorwegianKeyboard extends Keyboard {
                 ((NorwegianKey)mShiftKey).enableShiftLock();
             }
             mOldShiftIcon = mShiftKey.icon;
-            mOldShiftPreviewIcon = mShiftKey.iconPreview;
         }
     }
 

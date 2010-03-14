@@ -27,4 +27,6 @@
         android:background="@drawable/keyboard_background_light"
         android:keyBackground="@drawable/btn_keyboard_key_light"
         android:keyTextColor="#000000"
+        android:shadowColor="#ffffff"
+        android:popupLayout="@layout/input_light_popup"
         />

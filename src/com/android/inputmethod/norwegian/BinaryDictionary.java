@@ -18,7 +18,6 @@ package com.android.inputmethod.norwegian;
 
 import java.util.Arrays;
 
-import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 

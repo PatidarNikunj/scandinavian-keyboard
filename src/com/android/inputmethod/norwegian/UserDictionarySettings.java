@@ -16,14 +16,18 @@
 
 package com.android.inputmethod.norwegian;
 
+import java.io.File;
+import java.util.Locale;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
-import com.android.inputmethod.norwegian.provider.UserDictionary;
+import android.os.Environment;
 import android.text.InputType;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -32,6 +36,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AlphabetIndexer;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -40,7 +45,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-import java.util.Locale;
+import com.android.inputmethod.norwegian.provider.UserDictionary;
 
 public class UserDictionarySettings extends ListActivity {
 
@@ -48,7 +53,7 @@ public class UserDictionarySettings extends ListActivity {
     private static final String INSTANCE_KEY_ADDED_WORD = "DIALOG_ADDED_WORD";
 
     private static final String[] QUERY_PROJECTION = {
-        UserDictionary.Words._ID, UserDictionary.Words.WORD
+        UserDictionary.Words._ID, UserDictionary.Words.WORD, UserDictionary.Words.FREQUENCY
     };
     
     // Either the locale is empty (means the word is applicable to all locales)
@@ -64,8 +69,13 @@ public class UserDictionarySettings extends ListActivity {
     private static final int CONTEXT_MENU_DELETE = Menu.FIRST + 1;
     
     private static final int OPTIONS_MENU_ADD = Menu.FIRST;
+    private static final int OPTIONS_MENU_IMPORT = 2;
+    private static final int OPTIONS_MENU_EXPORT = 3;
 
     private static final int DIALOG_ADD_OR_EDIT = 0;
+    private static final int DIALOG_IMPORT = 1;
+    private static final int DIALOG_EXPORT = 2;
+    private static final int DIALOG_ERROR = 3;
     
     /** The word being edited in the dialog (null means the user is adding a word). */
     private String mDialogEditingWord;
@@ -74,6 +84,8 @@ public class UserDictionarySettings extends ListActivity {
     
     private boolean mAddedWordAlready;
     private boolean mAutoReturn;
+    
+    private String mImportExportError;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,12 +189,26 @@ public class UserDictionarySettings extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, OPTIONS_MENU_ADD, 0, R.string.user_dict_settings_add_menu_title)
                 .setIcon(R.drawable.ic_menu_add);
+        menu.add(0, OPTIONS_MENU_IMPORT, 1, R.string.import_title)
+                .setIcon(R.drawable.ic_menu_import);
+        menu.add(0, OPTIONS_MENU_EXPORT, 2, R.string.export_title)
+                .setIcon(R.drawable.ic_menu_export);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        showAddOrEditDialog(null);
+    	switch(item.getItemId()) {
+    	case OPTIONS_MENU_ADD:
+    		showAddOrEditDialog(null);
+    		break;
+    	case OPTIONS_MENU_IMPORT:
+    		showDialog(DIALOG_IMPORT);
+    		break;
+    	case OPTIONS_MENU_EXPORT:
+    		showDialog(DIALOG_EXPORT);
+    		break;
+    	}
         return true;
     }
 
@@ -199,43 +225,97 @@ public class UserDictionarySettings extends ListActivity {
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        View content = getLayoutInflater().inflate(R.layout.dialog_edittext, null);
-        final EditText editText = (EditText) content.findViewById(R.id.edittext);
-        // No prediction in soft keyboard mode. TODO: Create a better way to disable prediction
-        editText.setInputType(InputType.TYPE_CLASS_TEXT 
-                | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
-        
-        AlertDialog dialog =  new AlertDialog.Builder(this)
-                .setTitle(mDialogEditingWord != null 
-                        ? R.string.user_dict_settings_edit_dialog_title 
-                        : R.string.user_dict_settings_add_dialog_title)
-                .setView(content)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        onAddOrEditFinished(editText.getText().toString());
-                        if (mAutoReturn) finish();
-                    }})
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (mAutoReturn) finish();                        
-                    }})
-                .create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE |
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    	AlertDialog dialog = null;
+    	switch (id) {
+	    	case DIALOG_ADD_OR_EDIT:
+	    	View content = getLayoutInflater().inflate(R.layout.dialog_edittext, null);
+	        final EditText editText = (EditText) content.findViewById(R.id.edittext);
+	        // No prediction in soft keyboard mode. TODO: Create a better way to disable prediction
+	        editText.setInputType(InputType.TYPE_CLASS_TEXT 
+	                | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+	        
+	        dialog =  new AlertDialog.Builder(this)
+	                .setTitle(mDialogEditingWord != null 
+	                        ? R.string.user_dict_settings_edit_dialog_title 
+	                        : R.string.user_dict_settings_add_dialog_title)
+	                .setView(content)
+	                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+	                    public void onClick(DialogInterface dialog, int which) {
+	                        onAddOrEditFinished(editText.getText().toString());
+	                        if (mAutoReturn) finish();
+	                    }})
+	                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+	                    public void onClick(DialogInterface dialog, int which) {
+	                        if (mAutoReturn) finish();                        
+	                    }})
+	                .create();
+	        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE |
+	                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+			
+			break;
+			
+	    	case DIALOG_IMPORT:
+	    	case DIALOG_EXPORT:
+	    		View importContent = getLayoutInflater().inflate(R.layout.dialog_import_export, null);
+		        final EditText pathEditText = (EditText) importContent.findViewById(R.id.import_export_path);
+		        pathEditText.setInputType(InputType.TYPE_CLASS_TEXT 
+		                | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+		        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+		        if(!path.endsWith(File.separator))
+		        	path += File.separator;
+		        pathEditText.setText(path);
+		        final CheckBox keepExisting = (CheckBox) importContent.findViewById(R.id.import_keep_existing);
+		        
+		        Builder builder =  new AlertDialog.Builder(this)
+                        .setView(importContent)
+                        .setNegativeButton(android.R.string.cancel, null);
+		        
+		        if(id == DIALOG_IMPORT) {
+		        	builder.setTitle(R.string.import_title)
+	        		.setPositiveButton(R.string.import_title, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) { 
+                        	importWords(pathEditText.getText().toString(), keepExisting.isChecked());
+                        }});
+		        } else {
+		        	keepExisting.setVisibility(View.GONE);
+		        	builder.setTitle(R.string.export_title)
+		        		.setPositiveButton(R.string.export_title, new DialogInterface.OnClickListener() {
+	                        public void onClick(DialogInterface dialog, int which) { 
+	                        		exportWords(pathEditText.getText().toString());
+	                        }});
+		        }
+		        
+                dialog = builder.create();
+	    		break;
+	    		
+	    	case DIALOG_ERROR:
+	            dialog = new AlertDialog.Builder(this)
+	                    .setTitle(R.string.error)
+	                    .setNegativeButton(android.R.string.ok, null)
+	                    .setMessage(mImportExportError)
+	                    .create();
+	    		break;
+    	}
         return dialog;
     }
 
     @Override
     protected void onPrepareDialog(int id, Dialog d) {
-        AlertDialog dialog = (AlertDialog) d;
-        d.setTitle(mDialogEditingWord != null 
-                        ? R.string.user_dict_settings_edit_dialog_title 
-                        : R.string.user_dict_settings_add_dialog_title);
-        EditText editText = (EditText) dialog.findViewById(R.id.edittext);
-        editText.setText(mDialogEditingWord);
+    	if(id == DIALOG_ADD_OR_EDIT) {
+	        AlertDialog dialog = (AlertDialog) d;
+	        d.setTitle(mDialogEditingWord != null 
+	                        ? R.string.user_dict_settings_edit_dialog_title 
+	                        : R.string.user_dict_settings_add_dialog_title);
+	        EditText editText = (EditText) dialog.findViewById(R.id.edittext);
+	        editText.setText(mDialogEditingWord);
+    	}
     }
 
     private void onAddOrEditFinished(String word) {
+    	onAddOrEditFinished(word, 250);
+    }
+    
+    protected void onAddOrEditFinished(String word, int frequency) {
         if (mDialogEditingWord != null) {
             // The user was editing a word, so do a delete/add
             deleteWord(mDialogEditingWord);
@@ -246,14 +326,42 @@ public class UserDictionarySettings extends ListActivity {
         
         // TODO: present UI for picking whether to add word to all locales, or current.
         UserDictionary.Words.addWord(this, word.toString(),
-                250, UserDictionary.Words.LOCALE_TYPE_ALL);
+                frequency, UserDictionary.Words.LOCALE_TYPE_ALL);
         mCursor.requery();
         mAddedWordAlready = true;
     }
 
-    private void deleteWord(String word) {
+    protected void deleteWord(String word) {
         getContentResolver().delete(UserDictionary.Words.CONTENT_URI, DELETE_SELECTION,
                 new String[] { word });
+    }
+    
+    private void importWords(String path, boolean keepExisting) {
+		UserDictionaryBackup ub = new UserDictionaryBackup(this, mCursor);    		
+		int returnCode = ub.importWords(path, keepExisting);
+		if(returnCode != 0) {
+			switch (returnCode) {
+				case 1:
+					mImportExportError = getResources().getString(R.string.import_error_1);
+					break;
+				case 2:
+					mImportExportError = getResources().getString(R.string.import_error_2);
+					break;
+				case 3:
+					mImportExportError = getResources().getString(R.string.import_error_3);
+					break;
+			}
+			showDialog(DIALOG_ERROR);
+		}
+    }
+    
+    private void exportWords(String path) {
+		UserDictionaryBackup ub = new UserDictionaryBackup(this, mCursor);    		
+		int returnCode = ub.exportWords(path);
+		if(returnCode == 1) {
+			mImportExportError = getResources().getString(R.string.export_error_1);
+			showDialog(DIALOG_ERROR);
+		}
     }
     
     private static class MyAdapter extends SimpleCursorAdapter implements SectionIndexer {

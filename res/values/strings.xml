@@ -24,20 +24,39 @@
     <string name="english_ime_settings">Scandinavian keyboard settings</string>
 
     <string name="input_method">Input Method</string>
-
+    
+    <string name="help">Help &amp; about</string>
+    <string name="homepage">Homepage</string>
+    <string name="donate">Donate</string>
+    <string name="close">Close</string>
     <!-- Option to provide vibrate/haptic feedback on keypress -->
-    <string name="vibrate_on_keypress">Vibrate on keypress</string>
+    <string name="vibrate_options">Vibrate options</string>
+    <string name="save">Save</string>
+    <string name="vibrate_enable">Enable vibrate on keypress</string>
+    <string name="vibrate_duration">Vibrate duration: </string>
+    <string name="vibrate_bug_fix">Try to fix bug with endless vibration. If you don't experience this bug, you don't need to check this.</string>
     <!-- Option to play back sound on keypress in soft keyboard -->
     <string name="sound_on_keypress">Sound on keypress</string>
     
-    <string name="help">Help &amp; about</string>
-    <string name="vibrate_duration">Vibration duration</string>
-    <string name="vibrate_warning">Values below 30 ms can cause vibration bugs</string>
+    <string name="swipe_settings">Swipe settings</string>
+    <string name="swipe_settings_summary">Choose what to do when you swipe</string>
     <string name="enable_swipe">Enable swipe</string>
-    <string name="enable_swipe_summary">Swipe up to change case, down for numbers/symbols, left for backspace</string>
+    <string name="enable_swipe_summary">Move finger quickly across the keyboard to swipe</string>
+    <string name="swipe_up">Swipe up</string>
+    <string name="swipe_down">Swipe down</string>
+    <string name="swipe_left">Swipe left</string>
+    <string name="swipe_right">Swipe right</string>
+    <string name="swipe_up_default">1</string>
+    <string name="swipe_down_default">2</string>
+    <string name="swipe_left_default">3</string>
+    <string name="swipe_right_default">4</string>
+    <string name="swipe_keyboard_layout">Keyboard layouts to swipe between</string>
+    <string name="swipe_dictionary">Dictionaries to swipe between</string>
+
     <string name="skin">Skin</string>
-    <string name="skin_summary">Beta. No change for popups yet, should remove text shadow.</string>
+    <string name="skin_summary">Change the appearance of the keyboard</string>
     <string name="preferences_skin_default_value">input_standard</string>
+    
     <string name="keyboard_layout">Keyboard layout</string>
     <string name="preferences_keyboard_layout_list_default_value">0</string>
     <string name="language_category">Language settings</string>
@@ -46,10 +65,18 @@
     <string name="dictionary_manually_summary_checked">Dictionary language is set manually</string>
     <string name="dictionary">Dictionary language</string>
     <string name="dictionary_market">Download dictionary</string>
-    <string name="auto_dictionary">Enable auto dictionary</string>
-    <string name="auto_dictionary_summary">Automatically saves often used words in user dictionary</string>
+    
+    <string name="auto_dictionary_options">Auto dictionary options</string>
+    <string name="auto_dictionary_options_summary">Automatically saves often used words in user dictionary</string>
+    <string name="auto_dictionary_enable">Enable auto dictionary</string>
+    <string name="auto_dictionary_limit_text">How many times to type a word before it is added to the user dictionary</string>
+    <string name="auto_dictionary_limit_default">4</string>
+    
     <string name="space_after_prediction">Insert space</string>
     <string name="space_after_prediction_summary">Insert space after a predicted word is selected</string>
+    <string name="at_is_word_separator">Use \@ as a word separator</string>
+    <string name="at_is_word_separator_summary_unchecked">\@ can be saved in a word</string>
+    <string name="at_is_word_separator_summary_checked">\@ will complete suggested word and can\'t be saved in a word</string>
     <string name="swap_colon">Swap colon and space</string>
     <string name="swap_colon_summary">When colon/semicolon is pressed after space, place it before</string>
     
@@ -254,7 +281,7 @@
 · To use it, press and hold at a text field, select input method and select this keyboard.&lt;br&gt;
 · Press the back-button to close the keyboard.&lt;br&gt;
 · Press and hold the ?123 button to open settings.&lt;br&gt;
-· If you drag a letter fast (swipe) upwards, the letter will be written in upper case if the keyboard is set to lower case, and vice versa. If you swipe down, you will write the corresponing symbol. If you swipe left, it will press backspace.&lt;br&gt;
+· Drag the finger quicly across the keyboard to swipe.&lt;br&gt;
 &lt;br&gt;
 Report bugs or contact:&lt;br&gt;
 &lt;a href=\"mailto:trygveaa@gmail.com\"&gt;trygveaa@gmail.com&lt;/a&gt;&lt;br&gt;
@@ -263,6 +290,16 @@ Homepage:&lt;br&gt;
 &lt;br&gt;
 &lt;br&gt;
 &lt;b&gt;Changelog&lt;/b&gt;&lt;br&gt;
+&lt;br&gt;
+1.4.2&lt;br&gt;
+· Auto dictionary works&lt;br&gt;
+· Backup user dictionary&lt;br&gt;
+· Swipe options&lt;br&gt;
+· Added Icelandic layout&lt;br&gt;
+· Fixed bug: Swipe right to insert space removed word&lt;br&gt;
+· Skin fixes for non-default skin, removed text shadow and added skin for popup keys&lt;br&gt;
+· Option to allow words with @ in dictionary&lt;br&gt;
+· Keys updates to upper case when long-pressing shift&lt;br&gt;
 &lt;br&gt;
 1.4.1&lt;br&gt;
 · High resolution images&lt;br&gt;
@@ -337,4 +374,14 @@ Homepage:&lt;br&gt;
     <string name="user_dict_settings_empty_text">You do not have any words in the user dictionary. You can add a word through the menu or by pressing and holding at the leftmost word in the suggestions above the keyboard.</string>
 	
 	<string name="fast_scroll_alphabet">\u0020ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
+	
+	<string name="import_title">Import</string>
+	<string name="export_title">Export</string>
+	<string name="import_export_path_text">Path to file</string>
+	<string name="import_keep_existing">Keep existing words</string>
+	<string name="error">Error</string>
+	<string name="import_error_1">File not found</string>
+	<string name="import_error_2">Could not read file</string>
+	<string name="import_error_3">File has wrong format, second column is not a number</string>
+	<string name="export_error_1">Could not write file</string>
 </resources>

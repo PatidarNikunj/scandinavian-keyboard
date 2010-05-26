@@ -26,17 +26,17 @@
     >
 
     <Row android:rowEdgeFlags="top">
-        <Key android:keyLabel=";" android:keyEdgeFlags="left" />
-        <Key android:keyLabel="\\" />
-        <Key android:keyLabel="&amp;" />
-        <Key android:keyLabel="(" />
-        <Key android:keyLabel=")" />
-        <Key android:keyLabel="-" />
-        <Key android:keyLabel="+" android:keyEdgeFlags="right" />
-    </Row>
-    <Row android:rowEdgeFlags="bottom">
         <Key android:codes="58" android:keyLabel=":" android:keyEdgeFlags="left" />
         <Key android:codes="47" android:keyLabel="/" />
+        <Key android:codes="38" android:keyLabel="&amp;" />
+        <Key android:codes="40" android:keyLabel="(" />
+        <Key android:codes="41" android:keyLabel=")" />
+        <Key android:codes="45" android:keyLabel="-" />
+        <Key android:codes="43" android:keyLabel="+" android:keyEdgeFlags="right" />
+    </Row>
+    <Row android:rowEdgeFlags="bottom">
+        <Key android:codes="59" android:keyLabel=";" android:keyEdgeFlags="left" />
+        <Key android:codes="92" android:keyLabel="\\" />
         <Key android:codes="64" android:keyLabel="\@" />
         <Key android:codes="39" android:keyLabel="\'" />
         <Key android:codes="34" android:keyLabel="&quot;" />

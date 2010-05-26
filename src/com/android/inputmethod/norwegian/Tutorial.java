@@ -16,8 +16,10 @@
 
 package com.android.inputmethod.norwegian;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
@@ -31,9 +33,6 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Tutorial implements OnTouchListener {
     

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:paddingLeft="10sp"
+    android:paddingRight="10sp"
+    >
+
+    <TextView
+        android:id="@+id/app_info_enable"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_info_enable"
+        android:gravity="center_vertical|center_horizontal"
+        android:paddingBottom="10sp"
+        />
+
+    <Button
+        android:id="@+id/app_info_enable_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_info_enable_button"
+        android:layout_marginBottom="15sp"
+        />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_info_choose"
+        android:gravity="center_vertical|center_horizontal"
+        android:paddingBottom="10sp"
+        />
+
+    <Button
+        android:id="@+id/app_info_choose_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_info_choose_button"
+        android:layout_marginBottom="15sp"
+        />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_info_tips"
+        android:gravity="center_vertical|center_horizontal"
+        android:paddingBottom="10sp"
+        />
+
+    <Button
+        android:id="@+id/app_info_button_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/close"
+        android:layout_marginBottom="10sp"
+        />
+
+</LinearLayout>
+</ScrollView>

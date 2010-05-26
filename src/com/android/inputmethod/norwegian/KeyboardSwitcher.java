@@ -41,8 +41,13 @@ public class KeyboardSwitcher {
     private static final int SYMBOLS_MODE_STATE_BEGIN = 1;
     private static final int SYMBOLS_MODE_STATE_SYMBOL = 2;
     
+    public static final int TYPE_QWERTY = 0;
+    public static final int TYPE_COMPACT = 1;
+    public static final int TYPE_PHONE = 2;
+    
     private int mKeyboardLayout;
     private boolean mChangeIcons;
+    private int mKeyboardType;
 
     NorwegianKeyboardView mInputView;
     NorwegianIME mContext;
@@ -126,6 +131,10 @@ public class KeyboardSwitcher {
         setKeyboardModeChangeIcons(mode, imeOptions, mChangeIcons);
     }
     
+    void setKeyboardType(int keyboardType) {
+        mKeyboardType = keyboardType;
+    }
+    
     void setKeyboardModeChangeIcons(int mode, int imeOptions, boolean changeIcons) {
         mChangeIcons = changeIcons;
         mSymbolsModeState = SYMBOLS_MODE_STATE_NONE;
@@ -176,6 +185,9 @@ public class KeyboardSwitcher {
             return (mode == MODE_PHONE)
                 ? new KeyboardId(R.xml.kbd_phone_symbols) : new KeyboardId(R.xml.kbd_symbols);
         }
+        
+        if(mKeyboardType == TYPE_PHONE)
+        	return new KeyboardId(R.xml.kbd_phone_keyboard, KEYBOARDMODE_NORMAL, true);
 
         int kbd_layout;
         switch(mKeyboardLayout) {
@@ -204,10 +216,13 @@ public class KeyboardSwitcher {
             case 9:
             	kbd_layout = R.xml.kbd_qwerty_is;
             	break;
+            case 10:
+            	kbd_layout = R.xml.kbd_qwerty_lv;
+            	break;
             default:
                  kbd_layout = R.xml.kbd_qwerty_no;
         }
-
+        
         switch (mode) {
             case MODE_TEXT:
                 if (mTextMode == MODE_TEXT_QWERTY) {
@@ -219,7 +234,7 @@ public class KeyboardSwitcher {
             case MODE_SYMBOLS:
                 return new KeyboardId(R.xml.kbd_symbols);
             case MODE_PHONE:
-                return new KeyboardId(R.xml.kbd_phone);
+                return new KeyboardId(R.xml.kbd_phone_keypad);
             case MODE_URL:
                 return new KeyboardId(kbd_layout, KEYBOARDMODE_URL, true);
             case MODE_EMAIL:

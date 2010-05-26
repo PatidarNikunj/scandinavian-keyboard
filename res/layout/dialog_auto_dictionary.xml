@@ -45,6 +45,12 @@
             android:digits="0123456789"
             android:imeOptions="actionDone" />
 
+        <CheckBox android:id="@+id/auto_dictionary_case_sensitive"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/auto_dictionary_case_sensitive"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
     </LinearLayout>
 
 </ScrollView>

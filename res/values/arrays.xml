@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="keyboard_types">
+        <item>QWERTY</item>
+        <item>Compact QWERTY</item>
+        <item>Phone keyboard</item>
+    </string-array>
+    <string-array name="keyboard_types_values">
+        <item type='int'>0</item>
+        <item type='int'>1</item>
+        <item type='int'>2</item>
+    </string-array>
+    
     <string-array name="keyboard_layouts">
         <item>Danish</item>
         <item>English</item>
@@ -8,6 +19,7 @@
         <item>Finnish</item>
         <item>German</item>
         <item>Icelandic</item>
+        <item>Latvian</item>
         <item>Northern Sámi</item>
         <item>Norwegian</item>
         <item>Swedish</item>
@@ -20,19 +32,22 @@
         <item type='int'>4</item>
         <item type='int'>7</item>
         <item type='int'>9</item>
+        <item type='int'>10</item>
         <item type='int'>8</item>
         <item type='int'>0</item>
         <item type='int'>3</item>
     </string-array>
     
     <string-array name="skin_entries">
-        <item>Standard</item>
+        <item>Standard/Android</item>
         <item>HTC</item>
+        <item>iPhone</item>
         <item>Light</item>
     </string-array>
     <string-array name="skin_values">
         <item>input_standard</item>
         <item>input_htc</item>
+        <item>input_iphone</item>
         <item>input_light</item>
     </string-array>
     

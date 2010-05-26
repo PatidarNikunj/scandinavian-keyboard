@@ -157,7 +157,7 @@ public class NorwegianKeyboard extends Keyboard {
             mOldShiftIcon = res.getDrawable(R.drawable.sym_keyboard_shift_dark);
             mShiftLockIcon = res.getDrawable(R.drawable.sym_keyboard_shift_locked_dark);
             
-            if(mode == KeyboardSwitcher.MODE_PHONE) {
+//            if(mode == KeyboardSwitcher.MODE_PHONE) {
                 if(mSymbolsKey != null)
                     mSymbolsKey.icon = res.getDrawable(R.drawable.sym_keyboard_numalt_dark);
                 if(mNumbersKeys != null) {
@@ -186,7 +186,7 @@ public class NorwegianKeyboard extends Keyboard {
                     mStarKey.icon = res.getDrawable(R.drawable.sym_keyboard_numstar_dark);
                 if(mPoundKey != null)
                     mPoundKey.icon = res.getDrawable(R.drawable.sym_keyboard_numpound_dark);
-            }
+//            }
         }
     }
     

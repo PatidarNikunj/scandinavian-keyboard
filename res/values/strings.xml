@@ -22,19 +22,26 @@
     <string name="english_ime_name">Scandinavian keyboard</string>
     <!-- Title for Latin keyboard settings activity / dialog -->
     <string name="english_ime_settings">Scandinavian keyboard settings</string>
-
+    
+    <string name="app_info_enable">To use Scandinavian keyboard, you first need to enable it, and then choose to use it. If you are just updating, and were using it before, you don\'t need to do this again.\n\nTo enable it, either press the button below or go to Settings -> Language &amp; keyboard. There you need to check Scandinavian keyboard if it\'s not checked.</string>
+    <string name="app_info_enable_button">Press here to go there</string>
+    <string name="app_info_choose">To choose the keyboard, either press the button below or go to a text field, press and hold it and select Input Method. Then select Scandinavian keyboard.</string>
+    <string name="app_info_choose_button">Press here to choose</string>
+    <string name="app_info_tips">To choose keyboard layout or change other settings, press and hold the ?123-button.\n\nTips:\nPress the back-button on your device to close the keyboard.\nLongpress the leftmost suggestion word to add it to the dictionary.\nIf multitouch stops working, try rebooting your phone. (This is probably a problem with HTC Sense, so I don't think I can fix it.)\n\nIf you have any problems, questions or requests, please contact me at trygveaa@gmail.com or http://code.google.com/p/scandinavian-keyboard/issues/</string>
+    
     <string name="input_method">Input Method</string>
     
     <string name="help">Help &amp; about</string>
     <string name="homepage">Homepage</string>
     <string name="donate">Donate</string>
     <string name="close">Close</string>
+    <string name="keyboard_type">Keyboard type</string>
     <!-- Option to provide vibrate/haptic feedback on keypress -->
     <string name="vibrate_options">Vibrate options</string>
     <string name="save">Save</string>
     <string name="vibrate_enable">Enable vibrate on keypress</string>
     <string name="vibrate_duration">Vibrate duration: </string>
-    <string name="vibrate_bug_fix">Try to fix bug with endless vibration. If you don't experience this bug, you don't need to check this.</string>
+    <string name="vibrate_bug_fix">Try to fix bug with endless vibration. If you don\'t experience this bug, you don\'t need to check this.</string>
     <!-- Option to play back sound on keypress in soft keyboard -->
     <string name="sound_on_keypress">Sound on keypress</string>
     
@@ -55,22 +62,21 @@
 
     <string name="skin">Skin</string>
     <string name="skin_summary">Change the appearance of the keyboard</string>
-    <string name="preferences_skin_default_value">input_standard</string>
     
     <string name="keyboard_layout">Keyboard layout</string>
-    <string name="preferences_keyboard_layout_list_default_value">0</string>
     <string name="language_category">Language settings</string>
     <string name="dictionary_manually">Choose dictionary</string>
     <string name="dictionary_manually_summary_unchecked">Dictionary language is same as layout</string>
     <string name="dictionary_manually_summary_checked">Dictionary language is set manually</string>
     <string name="dictionary">Dictionary language</string>
+    <string name="dictionary_builtin_language">English</string>
     <string name="dictionary_market">Download dictionary</string>
     
     <string name="auto_dictionary_options">Auto dictionary options</string>
     <string name="auto_dictionary_options_summary">Automatically saves often used words in user dictionary</string>
     <string name="auto_dictionary_enable">Enable auto dictionary</string>
     <string name="auto_dictionary_limit_text">How many times to type a word before it is added to the user dictionary</string>
-    <string name="auto_dictionary_limit_default">4</string>
+    <string name="auto_dictionary_case_sensitive">Case-sensitive</string>
     
     <string name="space_after_prediction">Insert space</string>
     <string name="space_after_prediction_summary">Insert space after a predicted word is selected</string>
@@ -159,35 +165,6 @@
 
     <!-- Indicates that a word has been added to the dictionary -->
     <string name="added_word"><xliff:g id="word">%s</xliff:g> : Saved</string>
-    <!-- Accented forms of "a" -->
-    <string name="alternates_for_a">àáâãäåæ</string>
-    <!-- Accented forms of "e" -->
-    <string name="alternates_for_e">3èéêë</string>
-    <!-- Accented forms of "i" -->
-    <string name="alternates_for_i">8ìíîï</string>
-    <!-- Accented forms of "o" -->
-    <string name="alternates_for_o">9òóôõöœø</string>
-    <!-- Accented forms of "u" -->
-    <string name="alternates_for_u">7ùúûü</string>
-    <!-- Letters associated with "s" -->
-    <string name="alternates_for_s">§ß</string>
-    <!-- Accented forms of "n" -->
-    <string name="alternates_for_n">ñ</string>
-    <!-- Accented forms of "c" -->
-    <string name="alternates_for_c">ç</string>
-    <!-- Accented forms of "y" -->
-    <string name="alternates_for_y">6ýÿ</string>
-    
-    <string name="alternates_for_q">1</string>
-    <string name="alternates_for_w">2</string>
-    <string name="alternates_for_r">4</string>
-    <string name="alternates_for_t">5þ</string>
-    <string name="alternates_for_p">0</string>
-    <string name="alternates_for_d">ð</string>
-    <string name="alternates_for_oe">ǿ</string>
-    <string name="alternates_for_ae">ǽ</string>
-    <string name="alternates_for_t_se">6yýÿ</string>
-    <string name="alternates_for_z_se">x</string>
 
     <!-- Label to display on the "i" key -->
     <string name="key_i">i</string>
@@ -273,6 +250,10 @@
     <string name="popular_domain_6">".no"</string>
     <string name="popular_domain_7">".se"</string>
     <string name="popular_domain_8">".fi"</string>
+    <string name="popular_domain_9">".is"</string>
+    <string name="popular_domain_10">".de"</string>
+    <string name="popular_domain_11">".lv"</string>
+    <string name="popular_domain_12">".fo"</string>
     
     <string name="help_text">
 &lt;b&gt;Help&lt;/b&gt;&lt;br&gt;
@@ -290,6 +271,16 @@ Homepage:&lt;br&gt;
 &lt;br&gt;
 &lt;br&gt;
 &lt;b&gt;Changelog&lt;/b&gt;&lt;br&gt;
+&lt;br&gt;
+1.4.3&lt;br&gt;
+· Temporary fix for Froyo. Fixes force close, but disables dictionary (only on Froyo)&lt;br&gt;
+· Possible to make new dictionaries without changing the keyboard&lt;br&gt;
+· Info screen with instructions when opening from Market&lt;br&gt;
+· Symbols on popup from keys&lt;br&gt;
+· Made option for Auto dictionary case sensitivity&lt;br&gt;
+· Added Latvian layout&lt;br&gt;
+· Made space key larger&lt;br&gt;
+· Added iPhone skin&lt;br&gt;
 &lt;br&gt;
 1.4.2&lt;br&gt;
 · Auto dictionary works&lt;br&gt;

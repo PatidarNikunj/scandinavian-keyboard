@@ -16,14 +16,11 @@
 
 package com.android.inputmethod.norwegian;
 
-import java.util.ArrayList;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -46,7 +43,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-
 
 public class NorwegianIMESettings extends PreferenceActivity {
     
@@ -76,6 +72,7 @@ public class NorwegianIMESettings extends PreferenceActivity {
     private static final String AUTO_DICTIONARY_OPTIONS = "auto_dictionary_options";
     private static final String AUTO_DICTIONARY_ENABLE = "auto_dictionary_enable";
     private static final String AUTO_DICTIONARY_LIMIT = "auto_dictionary_limit";
+    private static final String AUTO_DICTIONARY_CASE_SENSITIVE = "auto_dictionary_case_sensitive";
     private static final int DIALOG_AUTO_DICTIONARY_OPTIONS = 2;
     
     private Preference mHelp;
@@ -85,8 +82,6 @@ public class NorwegianIMESettings extends PreferenceActivity {
     private ListPreference mKeyboardLayout;
     private CheckBoxPreference mDictionaryManually;
     private ListPreference mDictionary;
-    private CharSequence[] entries;
-    private CharSequence[] entryValues;
     private Preference mDictionaryMarket;
     
     private ListPreference[] mSwipe = new ListPreference[4];
@@ -96,11 +91,6 @@ public class NorwegianIMESettings extends PreferenceActivity {
     private Preference mAutoDictionaryOptions;
     
     private SharedPreferences sp;
-//    private int vibrationDurationValue;
-//    private TextView vibrateDurationValueText;
-//    private SeekBar vibrateDurationSeekBar;
-//    private TextView vibrateWarning;
-//    private boolean vibrateWarningVisible;
     
     @Override
     protected void onCreate(Bundle icicle) {
@@ -115,8 +105,6 @@ public class NorwegianIMESettings extends PreferenceActivity {
         mKeyboardLayout = (ListPreference) findPreference(KEYBOARD_LAYOUT);
         mDictionaryManually = (CheckBoxPreference) findPreference(DICTIONARY_MANUALLY);
         mDictionary = (ListPreference) findPreference(DICTIONARY);
-        entries = mDictionary.getEntries();
-        entryValues = mDictionary.getEntryValues();
         mDictionaryMarket = findPreference(DICTIONARY_MARKET);
         
         mSwipe[0] = (ListPreference) findPreference(SWIPE_UP);
@@ -130,35 +118,25 @@ public class NorwegianIMESettings extends PreferenceActivity {
 
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         
-        mKeyboardLayout.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
+        Preference.OnPreferenceChangeListener pcl = new Preference.OnPreferenceChangeListener(){
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean dictionaryManually = sp.getBoolean(DICTIONARY_MANUALLY, false);
-                int dictionary = Integer.parseInt(sp.getString(DICTIONARY, "0"));
-                addRemoveQuickFixes(Integer.parseInt(newValue.toString()), dictionaryManually, dictionary);
+            	if (preference instanceof ListPreference)
+            		((ListPreference) preference).setValue(newValue.toString());
+            	else if (preference instanceof CheckBoxPreference)
+            		((CheckBoxPreference) preference).setChecked((Boolean)newValue);
+                addRemoveQuickFixes();
                 return true;
             }
-        });
-        mDictionaryManually.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                int keyboardLayout = Integer.parseInt(sp.getString(KEYBOARD_LAYOUT, "0"));
-                int dictionary = Integer.parseInt(sp.getString(DICTIONARY, "0"));
-                addRemoveQuickFixes(keyboardLayout, (Boolean)newValue, dictionary);
-                return true;
-            }
-        });
-        mDictionary.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                int keyboardLayout = Integer.parseInt(sp.getString(KEYBOARD_LAYOUT, "0"));
-                boolean dictionaryManually = sp.getBoolean(DICTIONARY_MANUALLY, false);
-                addRemoveQuickFixes(keyboardLayout, dictionaryManually, Integer.parseInt(newValue.toString()));
-                return true;
-            }
-        });
+        };
+        
+        mKeyboardLayout.setOnPreferenceChangeListener(pcl);
+        mDictionaryManually.setOnPreferenceChangeListener(pcl);
+        mDictionary.setOnPreferenceChangeListener(pcl);
         
         for(ListPreference swipe : mSwipe) {
         	swipe.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {				
 				public boolean onPreferenceChange(Preference preference, Object newValue) {
-					((ListPreference) preference).setValue((String)newValue);
+					((ListPreference) preference).setValue(newValue.toString());
 					addRemoveSwipe();
 					return true;
 				}
@@ -173,36 +151,12 @@ public class NorwegianIMESettings extends PreferenceActivity {
         if (autoTextSize < 1) {
             ((PreferenceGroup) findPreference(PREDICTION_SETTINGS_KEY))
                 .removePreference(mQuickFixes);
-        } else {
-            //mShowSuggestions.setDependency(QUICK_FIXES_KEY);
         }
+        addRemoveQuickFixes();
         
-        int keyboardLayout = Integer.parseInt(sp.getString(KEYBOARD_LAYOUT, "0"));
-        boolean dictionaryManually = sp.getBoolean(DICTIONARY_MANUALLY, false);
-        int dictionary = Integer.parseInt(sp.getString(DICTIONARY, "0"));
-        addRemoveQuickFixes(keyboardLayout, dictionaryManually, dictionary);
-        
-        String[] pkgNames = { "com.android.inputmethod.norwegian.norwegiandictionary", "com.android.inputmethod.norwegian.danishdictionary", "com.android.inputmethod.latin", "com.android.inputmethod.norwegian.swedishdictionary", "com.android.inputmethod.norwegian.finnishdictionary" };
-        ArrayList<Integer> foundList = new ArrayList<Integer>();
-        for( int i = 0; i < pkgNames.length; i++) {
-            Boolean found = true;
-            try {
-                getPackageManager().getResourcesForApplication(pkgNames[i]);
-            } catch(NameNotFoundException notFound) {
-                found = false;
-            }
-            if(found) foundList.add(i);
-        }
-        CharSequence[] newEntries = new CharSequence[foundList.size()];
-        CharSequence[] newEntryValues = new CharSequence[foundList.size()];
-        for(int i = 0; i < foundList.size(); i++) {
-            for(int j = 0; j < entries.length; j++) {
-                if(Integer.toString(foundList.get(i)).charAt(0) == entryValues[j].charAt(0)) {
-                    newEntries[i] = entries[j];
-                    newEntryValues[i] = entryValues[j];
-                }
-            }
-        }
+        FindDictionary dictionaries = new FindDictionary(this);
+        CharSequence[] newEntries = dictionaries.getAppNames();
+        CharSequence[] newEntryValues = dictionaries.getPackageNames();
         mDictionary.setEntries(newEntries);
         mDictionary.setEntryValues(newEntryValues);
         mSwipeKeyboardLayout.checkAllIfValueIsAll();
@@ -218,8 +172,18 @@ public class NorwegianIMESettings extends PreferenceActivity {
         Dialog d = null;
         switch (id) {
         case DIALOG_HELP:
-            AlertDialog.Builder builderHelp = new AlertDialog.Builder(this);
-            builderHelp.setTitle(R.string.help)
+            View v = LayoutInflater.from(this).inflate(R.layout.dialog, null);
+		    TextView text = (TextView) v.findViewById(R.id.dialogText);
+		    String resultsTextFormat = getString(R.string.help_text);
+            String resultsText = String.format(resultsTextFormat);
+            CharSequence styledResults = Html.fromHtml(resultsText);
+		    text.setText(styledResults);
+		    text.setTextColor(text.getCurrentTextColor());
+		    text.setMovementMethod(LinkMovementMethod.getInstance());
+		    
+            d = new AlertDialog.Builder(this)
+                    .setTitle(R.string.help)
+                    .setView(v)
                     .setIcon(android.R.drawable.ic_menu_info_details)
                     .setPositiveButton(R.string.homepage, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
@@ -233,19 +197,8 @@ public class NorwegianIMESettings extends PreferenceActivity {
                                               Uri.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6117255")));
                         }
                     })
-                    .setNegativeButton(R.string.close, null);
-                    //.setMessage(R.string.help_text);
-            View v = LayoutInflater.from(this).inflate(R.layout.dialog, null);
-		    TextView text = (TextView) v.findViewById(R.id.dialogText);
-		    //text.setText(getString(R.string.help_text, getVersion()));
-		    String resultsTextFormat = getString(R.string.help_text);
-            String resultsText = String.format(resultsTextFormat);
-            CharSequence styledResults = Html.fromHtml(resultsText);
-		    text.setText(styledResults);
-		    text.setTextColor(text.getCurrentTextColor());
-		    text.setMovementMethod(LinkMovementMethod.getInstance());
-		    builderHelp.setView(v);
-            d = builderHelp.create();
+                    .setNegativeButton(R.string.close, null)
+                    .create();
             break;
             
         case DIALOG_VIBRATE_OPTIONS:
@@ -290,11 +243,13 @@ public class NorwegianIMESettings extends PreferenceActivity {
            	View autoDictView = LayoutInflater.from(this).inflate(R.layout.dialog_auto_dictionary, null);
         	final CheckBox autoDictEnable = (CheckBox) autoDictView.findViewById(R.id.auto_dictionary_enable);
         	final EditText autoDictLimit = (EditText) autoDictView.findViewById(R.id.auto_dictionary_limit);
+        	final CheckBox autoDictCaseSensitive = (CheckBox) autoDictView.findViewById(R.id.auto_dictionary_case_sensitive);
             
         	autoDictEnable.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 					autoDictLimit.setEnabled(isChecked);
 					autoDictLimit.setClickable(isChecked);
+					autoDictCaseSensitive.setEnabled(isChecked);
 				}
 			});
         	
@@ -305,7 +260,10 @@ public class NorwegianIMESettings extends PreferenceActivity {
                       public void onClick(DialogInterface dialog, int id) {
                           SharedPreferences.Editor editor = sp.edit();
                           editor.putBoolean(AUTO_DICTIONARY_ENABLE, autoDictEnable.isChecked());
-                          editor.putString(AUTO_DICTIONARY_LIMIT, autoDictLimit.getText().toString());
+                          String limit = autoDictLimit.getText().toString();
+                          if(!"".equals(limit))
+                        	  editor.putString(AUTO_DICTIONARY_LIMIT, autoDictLimit.getText().toString());
+                          editor.putBoolean(AUTO_DICTIONARY_CASE_SENSITIVE, autoDictCaseSensitive.isChecked());
                           editor.commit();
                       }
                   })
@@ -345,16 +303,18 @@ public class NorwegianIMESettings extends PreferenceActivity {
     		AlertDialog autoDictDialog = (AlertDialog) d;
     		CheckBox autoDictEnable = (CheckBox) autoDictDialog.findViewById(R.id.auto_dictionary_enable);
         	EditText autoDictLimit = (EditText) autoDictDialog.findViewById(R.id.auto_dictionary_limit);
+        	CheckBox autoDictCaseSensitive = (CheckBox) autoDictDialog.findViewById(R.id.auto_dictionary_case_sensitive);
         	
             sp = PreferenceManager.getDefaultSharedPreferences(this);
             boolean autoDictEnabled = sp.getBoolean(AUTO_DICTIONARY_ENABLE, true);
-            String autoDictLimitValue = sp.getString(AUTO_DICTIONARY_LIMIT, getResources().getString(R.string.auto_dictionary_limit_default));
         	
             autoDictEnable.setChecked(autoDictEnabled);
-        	autoDictLimit.setText(autoDictLimitValue);
+        	autoDictLimit.setText(sp.getString(AUTO_DICTIONARY_LIMIT, getResources().getString(R.string.auto_dictionary_limit_default)));
+        	autoDictCaseSensitive.setChecked(sp.getBoolean(AUTO_DICTIONARY_CASE_SENSITIVE, false));
         	
         	if(!autoDictEnabled) {
         		autoDictLimit.setEnabled(false);
+        		autoDictCaseSensitive.setEnabled(false);
         	}
 			break;
 		}
@@ -375,20 +335,16 @@ public class NorwegianIMESettings extends PreferenceActivity {
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
 
-//    private String getVersion() {
-//        try {
-//            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-//        } catch (NameNotFoundException e) { }
-//        return "";
-//    }
-
-    private void addRemoveQuickFixes(int keyboardLayout, boolean dictionaryManually, int dictionary) {
-        if((keyboardLayout != 2 && !dictionaryManually) || (dictionary != 2 && dictionaryManually))
-        ((PreferenceGroup) findPreference(PREDICTION_SETTINGS_KEY))
-            .removePreference(mQuickFixes);
+    private void addRemoveQuickFixes() {
+        int keyboardLayout = Integer.parseInt(sp.getString(KEYBOARD_LAYOUT, getResources().getString(R.string.keyboard_layout_list_default_value)));
+        boolean dictionaryManually = sp.getBoolean(DICTIONARY_MANUALLY, false);
+        String dictionary = sp.getString(DICTIONARY, getResources().getString(R.string.dictionary_list_default_value));
+        
+        if(keyboardLayout == 2 && !dictionaryManually || dictionaryManually &&
+        		(dictionary.contains(getResources().getString(R.string.dictionary_builtin_name)) || dictionary.equals(getResources().getString(R.string.dictionary_builtin_pkg))))
+            ((PreferenceGroup) findPreference(PREDICTION_SETTINGS_KEY)).addPreference(mQuickFixes);
         else
-        ((PreferenceGroup) findPreference(PREDICTION_SETTINGS_KEY))
-            .addPreference(mQuickFixes);
+            ((PreferenceGroup) findPreference(PREDICTION_SETTINGS_KEY)).removePreference(mQuickFixes);
     }
     
     private void addRemoveSwipe() {

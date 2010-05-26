@@ -22,6 +22,7 @@ import android.content.res.AssetManager;
 import android.util.Log;
 
 import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 
 /**
  * Implements a static, compacted, binary dictionary of standard words.
@@ -69,8 +70,14 @@ public class BinaryDictionary extends Dictionary {
 
     private final void loadDictionary(Resources res, int resId) {
         AssetManager am = res.getAssets(); //context.getResources().getAssets();
-        String assetName = res.getString(resId); //context.getResources().getString(resId);
-        mNativeDict = openNative(am, assetName, TYPED_LETTER_MULTIPLIER, FULL_WORD_FREQ_MULTIPLIER);
+        try {
+        	String assetName;
+        	if ("raw".equals(res.getResourceTypeName(resId)))
+        		assetName = res.getString(resId); //context.getResources().getString(resId);
+        	else
+        		assetName = res.getString(0x7f040000);
+            mNativeDict = openNative(am, assetName, TYPED_LETTER_MULTIPLIER, FULL_WORD_FREQ_MULTIPLIER);
+        } catch (NotFoundException e) { }
     }
 
     @Override

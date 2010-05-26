@@ -23,6 +23,16 @@
             android:title="@string/help"
             />
 
+    <!-- Postponed until next version
+    <ListPreference
+            android:key="keyboard_type"
+            android:title="@string/keyboard_type"
+            android:entries="@array/keyboard_types"
+            android:entryValues="@array/keyboard_types_values"
+            android:persistent="true"
+            android:defaultValue="@string/keyboard_type_list_default_value"
+            />  -->
+
     <Preference
             android:key="vibrate_options"
             android:title="@string/vibrate_options"
@@ -127,7 +137,7 @@
         android:entries="@array/skin_entries"
         android:entryValues="@array/skin_values"
         android:persistent="true"
-        android:defaultValue="@string/preferences_skin_default_value"
+        android:defaultValue="@string/skin_default_value"
         />
 
     <PreferenceCategory
@@ -140,7 +150,7 @@
             android:entries="@array/keyboard_layouts"
             android:entryValues="@array/keyboard_layouts_values"
             android:persistent="true"
-            android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
+            android:defaultValue="@string/keyboard_layout_list_default_value"
             />
 
         <CheckBoxPreference
@@ -155,11 +165,9 @@
         <ListPreference
             android:key="dictionary"
             android:title="@string/dictionary"
-            android:entries="@array/keyboard_layouts"
-            android:entryValues="@array/keyboard_layouts_values"
             android:persistent="true"
-            android:defaultValue="@string/preferences_keyboard_layout_list_default_value"
             android:dependency="dictionary_manually"
+            android:defaultValue="@string/dictionary_list_default_value"
             />
 
         <Preference
@@ -198,22 +206,6 @@
             />
 
         <CheckBoxPreference
-            android:key="auto_complete"
-            android:title="@string/auto_complete"
-            android:summary="@string/auto_complete_summary"
-            android:persistent="true" 
-            android:defaultValue="@bool/enable_autocorrect"
-            android:dependency="show_suggestions"
-            />
-
-        <Preference
-            android:key="auto_dictionary_options"
-            android:title="@string/auto_dictionary_options"
-            android:summary="@string/auto_dictionary_options_summary"
-            android:dependency="show_suggestions"
-            />
-
-        <CheckBoxPreference
             android:key="space_after_prediction"
             android:title="@string/space_after_prediction"
             android:summary="@string/space_after_prediction_summary"
@@ -223,13 +215,26 @@
             />
 
         <CheckBoxPreference
+            android:key="auto_complete"
+            android:title="@string/auto_complete"
+            android:summary="@string/auto_complete_summary"
+            android:persistent="true" 
+            android:defaultValue="@bool/enable_autocorrect"
+            />
+
+        <Preference
+            android:key="auto_dictionary_options"
+            android:title="@string/auto_dictionary_options"
+            android:summary="@string/auto_dictionary_options_summary"
+            />
+
+        <CheckBoxPreference
             android:key="at_is_word_separator"
             android:title="@string/at_is_word_separator"
             android:summaryOff="@string/at_is_word_separator_summary_unchecked"
             android:summaryOn="@string/at_is_word_separator_summary_checked"
             android:persistent="true"
             android:defaultValue="true"
-            android:dependency="show_suggestions"
             />
 
         <CheckBoxPreference

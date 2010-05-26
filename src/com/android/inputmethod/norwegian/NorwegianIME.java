@@ -16,6 +16,15 @@
 
 package com.android.inputmethod.norwegian;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,7 +32,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
@@ -48,18 +59,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-
-import android.content.res.Resources;
-import android.content.pm.PackageManager.NameNotFoundException;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Date;
-import java.util.HashMap;
-
 /**
  * Input method implementation for Qwerty'ish keyboard.
  */
@@ -68,6 +67,7 @@ public class NorwegianIME extends InputMethodService
     static final boolean DEBUG = false;
     static final boolean TRACE = false;
     
+    private static final String PREF_KEYBOARD_TYPE = "keyboard_type";
     private static final String PREF_KEYBOARD_LAYOUT = "keyboard_layout";
     private static final String PREF_DICTIONARY_MANUALLY = "dictionary_manually";
     private static final String PREF_DICTIONARY = "dictionary";
@@ -89,6 +89,7 @@ public class NorwegianIME extends InputMethodService
     private static final String PREF_AUTO_COMPLETE = "auto_complete";
     private static final String PREF_AUTO_DICTIONARY_ENABLE = "auto_dictionary_enable";
     private static final String PREF_AUTO_DICTIONARY_LIMIT = "auto_dictionary_limit";
+    private static final String PREF_AUTO_DICTIONARY_CASE_SENSITIVE = "auto_dictionary_case_sensitive";
     private static final String PREF_SPACE_AFTER_PREDICTION = "space_after_prediction";
     private static final String PREF_SWAP_COLON = "swap_colon";
     private static final String PREF_AT_IS_WORD_SEPARATOR = "at_is_word_separator";
@@ -104,7 +105,7 @@ public class NorwegianIME extends InputMethodService
     // Weight added to a user picking a new word from the suggestion strip
     static final int FREQUENCY_FOR_PICKED = 3;
     // Weight added to a user typing a new word that doesn't get corrected (or is reverted)
-    static final int FREQUENCY_FOR_TYPED = 1;
+    static final int FREQUENCY_FOR_TYPED = 3; //1;
     // A word that is frequently typed and get's promoted to the user dictionary, uses this
     // frequency.
     static final int FREQUENCY_FOR_AUTO_ADD = 250;
@@ -144,9 +145,10 @@ public class NorwegianIME extends InputMethodService
     private boolean mAutoSpace;
     private boolean mAutoCorrectOn;
     private boolean mCapsLock;
+    private int mKeyboardType;
     private int mKeyboardLayout;
     private boolean mDictionaryManually;
-    private int mDictionary;
+    private String mDictionary;
     private CharSequence[] mAvailableDictionaries;
     private CharSequence[] mAvailableDictionaryValues;
     private boolean mVibrateOn;
@@ -165,6 +167,7 @@ public class NorwegianIME extends InputMethodService
     private boolean mShowSuggestions;
     private boolean mAutoDictionaryEnabled;
     private int mAutoDictionaryLimit;
+    private boolean mAutoDictionaryCaseSensitive;
     private boolean mSpaceAfterPrediction;
     private boolean mSwapColon;
     private int     mCorrectionMode;
@@ -175,6 +178,8 @@ public class NorwegianIME extends InputMethodService
     private CharSequence mJustRevertedSeparator;
     private int mDeleteCount;
     private long mLastKeyTime;
+    private int mLastOnKeyCode;
+    private int mKeyPressesCount;
     
     private Tutorial mTutorial;
 
@@ -240,26 +245,21 @@ public class NorwegianIME extends InputMethodService
     }
     
     private void initSuggest(String locale, boolean doAll) {
-        int dictionary;
-        if(mDictionaryManually) dictionary = mDictionary;
-        else dictionary = mKeyboardLayout;
-        
         String pkgName;
-        int resId = 0x7f030000;
-        if(dictionary == 1) pkgName = "com.android.inputmethod.norwegian.danishdictionary";
-        else if(dictionary == 2) {
-        	pkgName = "com.android.inputmethod.latin";
-            resId = 0x7f050000;
-            try {
-                getPackageManager().getResourcesForApplication(pkgName);
-            } catch(NameNotFoundException notFound) {
-            	pkgName = "com.android.inputmethod.norwegian.englishdictionary";
-            	resId = 0x7f030000;
-            }
+        FindDictionary dictionaries = new FindDictionary(this);
+        mAvailableDictionaries = dictionaries.getAppNames();
+        mAvailableDictionaryValues = dictionaries.getPackageNames();
+        if(mDictionaryManually)
+        	pkgName = mDictionary;
+        else {
+    		int index = 0;
+    		CharSequence[] keyboardLayouts = getResources().getStringArray(R.array.keyboard_layouts_values);
+    		for (int i = 0; i < keyboardLayouts.length; i++)
+    			if(mKeyboardLayout == Integer.parseInt(keyboardLayouts[i].toString()))
+    				index = i;
+        	pkgName = dictionaries.findPackageName(getResources().getStringArray(R.array.keyboard_layouts)[index]);
         }
-        else if(dictionary == 3) pkgName = "com.android.inputmethod.norwegian.swedishdictionary";
-        else if(dictionary == 4) pkgName = "com.android.inputmethod.norwegian.finnishdictionary";
-        else pkgName = "com.android.inputmethod.norwegian.norwegiandictionary";
+        int resId = dictionaries.getResId(pkgName);
 
         if(doAll || pkgName != pkgNameLast) {
             Resources res;
@@ -280,7 +280,6 @@ public class NorwegianIME extends InputMethodService
                 mSuggest.setAutoDictionary(mAutoDictionary);
                 mWordSeparators = getResources().getString(R.string.word_separators);
                 mSentenceSeparators = getResources().getString(R.string.sentence_separators);
-                findAvailableDictionaries();
             }
             if(resId != 0) pkgNameLast = pkgName;
             else pkgNameLast = "";
@@ -316,9 +315,14 @@ public class NorwegianIME extends InputMethodService
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         mSkin = sp.getString(PREF_SKIN, "input_standard");
         int layout_input;
+        boolean changeIcons = true;
         if("input_htc".equals(mSkin)) layout_input = R.layout.input_htc;
+        else if("input_iphone".equals(mSkin)) layout_input = R.layout.input_iphone;
         else if("input_light".equals(mSkin)) layout_input = R.layout.input_light;
-        else layout_input = R.layout.input_standard;
+        else {
+        	layout_input = R.layout.input_standard;
+        	changeIcons = false;
+        }
         mLastSkin = mSkin;
         
         mInputView = (NorwegianKeyboardView) getLayoutInflater().inflate(
@@ -326,10 +330,8 @@ public class NorwegianIME extends InputMethodService
         mKeyboardSwitcher.setInputView(mInputView);
         mKeyboardSwitcher.makeKeyboards(true);
         mInputView.setOnKeyboardActionListener(this);
+        mKeyboardSwitcher.setKeyboardType(mKeyboardType);
         mKeyboardSwitcher.setKeyboardLayout(mKeyboardLayout);
-        boolean changeIcons = false;
-        if(mSkin.equals("input_htc") || mSkin.equals("input_light"))
-            changeIcons = true;
         mKeyboardSwitcher.setKeyboardModeChangeIcons(KeyboardSwitcher.MODE_TEXT, 0, changeIcons);
         return mInputView;
     }
@@ -357,6 +359,7 @@ public class NorwegianIME extends InputMethodService
         if(mSkin != null && !mSkin.equals(mLastSkin))
             setInputView(onCreateInputView());
         initSuggest(getResources().getConfiguration().locale.toString(), false);
+        mKeyboardSwitcher.setKeyboardType(mKeyboardType);
         mKeyboardSwitcher.setKeyboardLayout(mKeyboardLayout);
 
         mKeyboardSwitcher.makeKeyboards(false);
@@ -691,10 +694,10 @@ public class NorwegianIME extends InputMethodService
                 when > mLastKeyTime + QUICK_PRESS) {
             mDeleteCount = 0;
         }
-        mLastKeyTime = when;
+        
         switch (primaryCode) {
-            case Keyboard.KEYCODE_DELETE:
-                handleBackspace();
+            case Keyboard.KEYCODE_DELETE:            	
+            	handleBackspace();
                 mDeleteCount++;
                 break;
             case Keyboard.KEYCODE_SHIFT:
@@ -722,11 +725,34 @@ public class NorwegianIME extends InputMethodService
                 if (isWordSeparator(primaryCode)) {
                     handleSeparator(primaryCode);
                 } else {
-                    handleCharacter(primaryCode, keyCodes);
+                	if(mKeyboardType == 2) { // Postponed until next version. Testing of phone layout
+                		mKeyPressesCount++;
+                		if(primaryCode != mLastOnKeyCode || when > mLastKeyTime + 1000)
+                			mKeyPressesCount = 0;
+                		switch(mKeyPressesCount) {
+                		case 0:
+                			handleCharacter(primaryCode, keyCodes);
+                			break;
+                		case 1:
+                			replaceLastCharacter(primaryCode + 1, keyCodes);
+                			break;
+                		case 2:
+                			replaceLastCharacter(primaryCode + 2, keyCodes);
+                			break;
+                		}
+                	} else {
+                		String k = primaryCode + "    ";
+                		for (int i : keyCodes)
+                			k += i + " ";
+                		Log.d("SK", k);
+                		handleCharacter(primaryCode, keyCodes);
+                	}
                 }
                 // Cancel the just reverted state
                 mJustRevertedSeparator = null;
         }
+        mLastKeyTime = when;
+        mLastOnKeyCode = primaryCode;
         if (mKeyboardSwitcher.onKey(primaryCode)) {
             //changeKeyboardMode();
         }
@@ -864,6 +890,45 @@ public class NorwegianIME extends InputMethodService
         if (ic != null) {
             ic.endBatchEdit();
         }
+    }
+    
+    private void replaceLastCharacter(int primaryCode, int[] keyCodes) {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return;
+        
+        if (mInputView.isShifted()) {
+            // TODO: This doesn't work with ß, need to fix it in the next release.
+            if (keyCodes == null || keyCodes[0] < Character.MIN_CODE_POINT
+                    || keyCodes[0] > Character.MAX_CODE_POINT) {
+                return;
+            }
+            primaryCode = new String(keyCodes, 0, 1).toUpperCase().charAt(0);
+        }
+        
+        if (mPredicting) {
+            final int length = mComposing.length();
+            if (length > 0) {
+                mComposing.delete(length - 1, length);
+                mWord.deleteLast();
+            } else {
+                ic.deleteSurroundingText(1, 0);
+            }
+            
+            if (mInputView.isShifted() && mComposing.length() == 0) {
+                mWord.setCapitalized(true);
+            }
+            mComposing.append((char) primaryCode);
+            mWord.add(primaryCode, keyCodes);
+            ic.setComposingText(mComposing, 1);
+            postUpdateSuggestions();
+        } else {
+        	sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
+        	sendKeyChar((char)primaryCode);
+        }
+        
+        updateShiftKeyState(getCurrentInputEditorInfo());
+        measureCps();
+        TextEntryState.typedCharacter((char) primaryCode, isWordSeparator(primaryCode));
     }
     
     private void handleClose() {
@@ -1132,7 +1197,7 @@ public class NorwegianIME extends InputMethodService
 	    		int newDictionaryIndex = 0;
 	    		CharSequence[] selectedDictionaries = ListPreferenceMultiSelect.parseStoredValue(mSwipeDictionary);
 	    		for (int i = 0; i < selectedDictionaries.length; i++)
-	    			if(mDictionary == Integer.parseInt(selectedDictionaries[i].toString()))
+	    			if(mDictionary.equals(selectedDictionaries[i]))
 	    				newDictionaryIndex = i;
 	    		newDictionaryIndex = newDictionaryIndex + (type == 9 ? -1 : 1);
 	    		
@@ -1284,6 +1349,7 @@ public class NorwegianIME extends InputMethodService
     private void loadSettings() {
         // Get the settings preferences
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        mKeyboardType = Integer.parseInt(sp.getString(PREF_KEYBOARD_TYPE, getResources().getString(R.string.keyboard_type_list_default_value)));
         mVibrateOn = sp.getBoolean(PREF_VIBRATE_ON, true);
         mVibrateDuration = sp.getInt(PREF_VIBRATE_DURATION, getResources().getInteger(R.integer.vibrate_duration_ms));
         mVibrateBugFix = sp.getBoolean(PREF_VIBRATE_BUG_FIX, false);
@@ -1297,17 +1363,20 @@ public class NorwegianIME extends InputMethodService
         mSwipeRight = Integer.parseInt(sp.getString(PREF_SWIPE_RIGHT, getResources().getString(R.string.swipe_right_default)));
         mSwipeKeyboardLayout = sp.getString(PREF_SWIPE_KEYBOARD_LAYOUT, getResources().getString(R.string.swipe_keyboard_layout));
         mSwipeDictionary = sp.getString(PREF_SWIPE_DICTIONARY, getResources().getString(R.string.swipe_dictionary));
-        mSkin = sp.getString(PREF_SKIN, "input_standard");
+        mSkin = sp.getString(PREF_SKIN, getResources().getString(R.string.skin_default_value));
         
-        mKeyboardLayout = Integer.parseInt(sp.getString(PREF_KEYBOARD_LAYOUT, getResources().getString(R.string.preferences_keyboard_layout_list_default_value)));
+        mKeyboardLayout = Integer.parseInt(sp.getString(PREF_KEYBOARD_LAYOUT, getResources().getString(R.string.keyboard_layout_list_default_value)));
         mDictionaryManually = sp.getBoolean(PREF_DICTIONARY_MANUALLY, false);
-        mDictionary = Integer.parseInt(sp.getString(PREF_DICTIONARY, getResources().getString(R.string.preferences_keyboard_layout_list_default_value)));
+        mDictionary = sp.getString(PREF_DICTIONARY, getResources().getString(R.string.dictionary_list_default_value));
         createLetterSymbolArray();
         
         mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, false);
         // If there is no auto text data, then quickfix is forced to "on", so that the other options
         // will continue to work
         if (AutoText.getSize(mInputView) < 1) mQuickFixes = true;
+        if(mKeyboardLayout != 2 && !mDictionaryManually || mDictionaryManually &&
+        		!(mDictionary.contains(getResources().getString(R.string.dictionary_builtin_name)) || mDictionary.equals(getResources().getString(R.string.dictionary_builtin_pkg))))
+            mQuickFixes = false;
         mShowSuggestions = sp.getBoolean(PREF_SHOW_SUGGESTIONS, true);// & mQuickFixes;
         boolean autoComplete = sp.getBoolean(PREF_AUTO_COMPLETE,
                 getResources().getBoolean(R.bool.enable_autocorrect));// & mShowSuggestions;
@@ -1315,10 +1384,9 @@ public class NorwegianIME extends InputMethodService
         mCorrectionMode = autoComplete
                 ? Suggest.CORRECTION_FULL
                 : ((mQuickFixes || mShowSuggestions) ? Suggest.CORRECTION_BASIC : Suggest.CORRECTION_NONE);
-        if(mKeyboardLayout != 2 && !mDictionaryManually || mDictionary != 2 && mDictionaryManually)
-            mQuickFixes = false;
-        mAutoDictionaryEnabled = sp.getBoolean(PREF_AUTO_DICTIONARY_ENABLE, true) && mShowSuggestions;
+        mAutoDictionaryEnabled = sp.getBoolean(PREF_AUTO_DICTIONARY_ENABLE, true);
         mAutoDictionaryLimit = Integer.parseInt(sp.getString(PREF_AUTO_DICTIONARY_LIMIT, getResources().getString(R.string.auto_dictionary_limit_default)));
+        mAutoDictionaryCaseSensitive = sp.getBoolean(PREF_AUTO_DICTIONARY_CASE_SENSITIVE, false);
         mAutoDictionary.loadSettings();
         mSpaceAfterPrediction = sp.getBoolean(PREF_SPACE_AFTER_PREDICTION, true);;
         mSwapColon = sp.getBoolean(PREF_SWAP_COLON, true);
@@ -1421,7 +1489,7 @@ public class NorwegianIME extends InputMethodService
     private void launchChooseDictionary() {        
         int selectedDictionaryIndex = -1;
         for(int i = 0; i < mAvailableDictionaryValues.length; i++)
-            if(Integer.parseInt(mAvailableDictionaryValues[i].toString()) == mDictionary)
+            if(mDictionary.equals(mAvailableDictionaryValues[i]))
                 selectedDictionaryIndex = i;
         
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1444,32 +1512,6 @@ public class NorwegianIME extends InputMethodService
         window.setAttributes(lp);
         window.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         mOptionsDialog.show();
-    }
-    
-    private void findAvailableDictionaries() {
-        CharSequence[] dictionaries = getResources().getTextArray(R.array.keyboard_layouts);
-        CharSequence[] dictionaryValues = getResources().getTextArray(R.array.keyboard_layouts_values);
-        String[] pkgNames = { "com.android.inputmethod.norwegian.norwegiandictionary", "com.android.inputmethod.norwegian.danishdictionary", "com.android.inputmethod.latin", "com.android.inputmethod.norwegian.swedishdictionary", "com.android.inputmethod.norwegian.finnishdictionary" };
-        ArrayList<Integer> foundList = new ArrayList<Integer>();
-        for( int i = 0; i < pkgNames.length; i++) {
-            Boolean found = true;
-            try {
-                getPackageManager().getResourcesForApplication(pkgNames[i]);
-            } catch(NameNotFoundException notFound) {
-                found = false;
-            }
-            if(found) foundList.add(i);
-        }
-        mAvailableDictionaries = new CharSequence[foundList.size()];
-        mAvailableDictionaryValues = new CharSequence[foundList.size()];
-        for(int i = 0; i < foundList.size(); i++) {
-            for(int j = 0; j < dictionaries.length; j++) {
-                if(Integer.toString(foundList.get(i)).charAt(0) == dictionaryValues[j].charAt(0)) {
-                    mAvailableDictionaries[i] = dictionaries[j];
-                    mAvailableDictionaryValues[i] = dictionaryValues[j];
-                }
-            }
-        }
     }
     
     private void changePreference(String preference, String value) {
@@ -1555,12 +1597,16 @@ public class NorwegianIME extends InputMethodService
 
         @Override
         public boolean isValidWord(CharSequence word) {
+        	if(!mAutoDictionaryCaseSensitive)
+        		word = word.toString().toLowerCase();
             final int frequency = getWordFrequency(word);
             return frequency >= VALIDITY_THRESHOLD;
         }
 
         @Override
         public void addWord(String word, int addFrequency) {
+        	if(!mAutoDictionaryCaseSensitive)
+        		word = word.toLowerCase();
             final int length = word.length();
             // Don't add very short or very long words.
             if (length < 2 || length > getMaxWordLength()) return;

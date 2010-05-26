@@ -22,16 +22,66 @@
     <string name="word_separators">.\u0020,;:!?\n()[]*&amp;@{}/&lt;&gt;_+=|\u0022</string>
     <!-- Symbols that are sentence separators, for purposes of making it hug the last sentence. -->
     <string name="sentence_separators">.,;:!?</string>
-    <!-- Accented characters related to "d" -->
-    <!--<string name="alternates_for_d"></string>-->
-    <!-- Accented characters related to "r" -->
-    <!--<string name="alternates_for_r"></string>-->
-    <!-- Accented characters related to "t" -->
-    <!--<string name="alternates_for_t"></string>-->
-    <!-- Accented characters related to "z" -->
-    <string name="alternates_for_z"></string>
-    <!-- Accented characters related to "l" -->
-    <string name="alternates_for_l"></string>
-    <!-- Accented characters related to "g" -->
-    <string name="alternates_for_g"></string>
+    
+    <string name="keyboard_type_list_default_value">0</string>
+    <string name="skin_default_value">input_standard</string>
+    <string name="keyboard_layout_list_default_value">0</string>
+    <string name="dictionary_list_default_value">com.android.inputmethod.norwegian.norwegiandictionary</string>
+    <string name="dictionary_builtin_pkg">com.android.inputmethod.latin</string>
+    <string name="dictionary_builtin_voice_pkg">com.google.android.voicesearch</string>
+    <string name="dictionary_builtin_name">english</string>
+    <string name="auto_dictionary_limit_default">4</string>
+    
+    <!-- Accented forms associated letters and corresponding numbers and symbols for keys -->
+    <string name="alternates_for_q">1</string>
+    <string name="alternates_for_w">2</string>
+    <string name="alternates_for_e">3èéêë</string>
+    <string name="alternates_for_r">4</string>
+    <string name="alternates_for_t">5þ</string>
+    <string name="alternates_for_y">6ýÿ</string>
+    <string name="alternates_for_u">7ùúûü</string>
+    <string name="alternates_for_i">8ìíîï</string>
+    <string name="alternates_for_o">9òóôõöœø</string>
+    <string name="alternates_for_p">0</string>
+    
+    <string name="alternates_for_a">\@àáâãäåæ</string>
+    <string name="alternates_for_s">#§ß</string>
+    <string name="alternates_for_d">$ð</string>
+    <string name="alternates_for_f">%</string>
+    <string name="alternates_for_g">&amp;</string>
+    <string name="alternates_for_h">*</string>
+    <string name="alternates_for_j">-_</string>
+    <string name="alternates_for_k">+=</string>
+    <string name="alternates_for_l">(</string>
+    
+    <string name="alternates_for_z">!</string>
+    <string name="alternates_for_x">\"</string>
+    <string name="alternates_for_c">\'ç</string>
+    <string name="alternates_for_v">:</string>
+    <string name="alternates_for_b">;</string>
+    <string name="alternates_for_n">/\\ñ</string>
+    <string name="alternates_for_m">\?</string>
+    
+    <string name="alternates_for_oe_left">)ǿ</string>
+    <string name="alternates_for_oe_right">ǿ</string>
+    <string name="alternates_for_ae_left">)ǽ</string>
+    <string name="alternates_for_ae_right">ǽ</string>
+    <string name="alternates_for_l_en">()</string>
+    <string name="alternates_for_y_de">!ýÿ</string>
+    <string name="alternates_for_z_de">6</string>
+    <string name="alternates_for_t_line_se">6yýÿ</string>
+    <string name="alternates_for_z_hat_se">!</string>
+    <string name="alternates_for_z_se">\"x</string>
+    
+    <string name="alternates_for_a_lv">ā\@</string>
+    <string name="alternates_for_c_lv">č\'</string>
+    <string name="alternates_for_e_lv">ē3</string>
+    <string name="alternates_for_g_lv">ģ&amp;</string>
+    <string name="alternates_for_i_lv">ī8</string>
+    <string name="alternates_for_k_lv">ķ+=</string>
+    <string name="alternates_for_l_lv">ļ()</string>
+    <string name="alternates_for_n_lv">ņ/\\</string>
+    <string name="alternates_for_s_lv">š#§ß</string>
+    <string name="alternates_for_u_lv">ū7</string>
+    <string name="alternates_for_z_lv">ž!</string>
 </resources>

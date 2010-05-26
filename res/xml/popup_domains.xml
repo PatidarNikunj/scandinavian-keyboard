@@ -26,6 +26,17 @@
     >
 
     <Row android:rowEdgeFlags="top">
+        <Key android:keyLabel="@string/popular_domain_9"
+            android:keyOutputText="@string/popular_domain_9" android:keyEdgeFlags="left" />
+        <Key android:keyLabel="@string/popular_domain_10"
+            android:keyOutputText="@string/popular_domain_10"/>
+        <Key android:keyLabel="@string/popular_domain_11"
+            android:keyOutputText="@string/popular_domain_11"/>
+        <Key android:keyLabel="@string/popular_domain_12"
+            android:keyOutputText="@string/popular_domain_12" android:keyEdgeFlags="right" />
+    </Row>
+
+    <Row>
         <Key android:keyLabel="@string/popular_domain_1"
             android:keyOutputText="@string/popular_domain_1" android:keyEdgeFlags="left" />
         <Key android:keyLabel="@string/popular_domain_2"

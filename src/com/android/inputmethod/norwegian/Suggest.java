@@ -17,7 +17,6 @@
 package com.android.inputmethod.norwegian;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.AutoText;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,7 +40,6 @@ public class Suggest implements Dictionary.WordCallback {
     public static final int CORRECTION_FULL = 2;
     
     private Dictionary mMainDict;
-    private boolean useDictionary = true; // Native library won't load in 2.2 yet, so dictionary has to be disabled for 2.2 until it is resolved
     
     private Dictionary mUserDictionary;
 
@@ -64,12 +62,7 @@ public class Suggest implements Dictionary.WordCallback {
 
     public Suggest(Context context, Resources res, int dictionaryResId) {
         mContext = context;
-        
-        if (Integer.parseInt(Build.VERSION.SDK) == 8)
-            useDictionary = false;
-        if (useDictionary)
-            mMainDict = new BinaryDictionary(res, dictionaryResId);
-        
+        mMainDict = new BinaryDictionary(res, dictionaryResId);
         for (int i = 0; i < mPrefMaxSuggestions; i++) {
             StringBuilder sb = new StringBuilder(32);
             mStringPool.add(sb);
@@ -175,8 +168,7 @@ public class Suggest implements Dictionary.WordCallback {
                     mHaveCorrection = true;
                 }
             }
-            if (useDictionary)
-                mMainDict.getWords(wordComposer, this);
+            mMainDict.getWords(wordComposer, this);
             if (mCorrectionMode == CORRECTION_FULL && mSuggestions.size() > 0) {
                 mHaveCorrection = true;
             }
@@ -310,7 +302,7 @@ public class Suggest implements Dictionary.WordCallback {
         if (word == null || word.length() == 0) {
             return false;
         }
-        return (mCorrectionMode == CORRECTION_FULL && useDictionary && mMainDict.isValidWord(word)) 
+        return (mCorrectionMode == CORRECTION_FULL && mMainDict.isValidWord(word)) 
                 || (mCorrectionMode > CORRECTION_NONE && 
                     ((mUserDictionary != null && mUserDictionary.isValidWord(word)))
                      || (mAutoDictionary != null && mAutoDictionary.isValidWord(word)));

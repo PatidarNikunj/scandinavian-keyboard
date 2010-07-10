@@ -27,7 +27,7 @@
     <string name="app_info_enable_button">Press here to go there</string>
     <string name="app_info_choose">To choose the keyboard, either press the button below or go to a text field, press and hold it and select Input Method. Then select Scandinavian keyboard.</string>
     <string name="app_info_choose_button">Press here to choose</string>
-    <string name="app_info_tips">To choose keyboard layout or change other settings, press and hold the ?123-button.\n\nTips:\nPress the back-button on your device to close the keyboard.\nLongpress the leftmost suggestion word to add it to the dictionary.\nIf multitouch stops working, try rebooting your phone. (This is probably a problem with HTC Sense, so I don't think I can fix it.)\n\nIf you have any problems, questions or requests, please contact me at trygveaa@gmail.com or http://code.google.com/p/scandinavian-keyboard/issues/</string>
+    <string name="app_info_tips">To choose keyboard layout or change other settings, press and hold the ?123-button.\n\nTips:\nPress the back-button on your device to close the keyboard.\nLongpress the leftmost suggestion word to add it to the dictionary.\nIf multitouch stops working, try rebooting your phone. (This is probably a problem with HTC Sense, so I don\'t think I can fix it.)\n\nIf you have any problems, questions or requests, please contact me at trygveaa@gmail.com or http://code.google.com/p/scandinavian-keyboard/issues/</string>
     
     <string name="input_method">Input Method</string>
     

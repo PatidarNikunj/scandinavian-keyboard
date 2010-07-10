@@ -43,9 +43,9 @@ public class BinaryDictionary extends Dictionary {
 
     static {
         try {
-            System.loadLibrary("jni_norwegianime");
+        	System.loadLibrary(Integer.parseInt(android.os.Build.VERSION.SDK) > 7 ? "jni_norwegianime_froyo" : "jni_norwegianime");
         } catch (UnsatisfiedLinkError ule) {
-            Log.e("BinaryDictionary", "Could not load native library jni_norwegianime");
+            Log.e("BinaryDictionary", "Could not load native library " + (Integer.parseInt(android.os.Build.VERSION.SDK) > 7 ? "jni_norwegianime_froyo" : "jni_norwegianime"));
         }
     }
 

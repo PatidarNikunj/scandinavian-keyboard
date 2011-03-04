@@ -18,12 +18,10 @@ package com.android.inputmethod.norwegian;
 
 import java.util.Arrays;
 
-import android.R.integer;
 import android.content.res.AssetManager;
-import android.util.Log;
-
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
+import android.util.Log;
 
 /**
  * Implements a static, compacted, binary dictionary of standard words.
@@ -45,17 +43,17 @@ public class BinaryDictionary extends Dictionary {
     private static boolean nativeLibraryLoaded = false;
 
     static {
+        int mAPILevel = Integer.parseInt(android.os.Build.VERSION.SDK);
+        String mNativeLibraryName = "jni_norwegianime_gingerbread";
+        if (mAPILevel == 8)
+            mNativeLibraryName = "jni_norwegianime_froyo";
+        else if (mAPILevel < 8)
+            mNativeLibraryName = "jni_norwegianime_cupcake-eclair";
         try {
-            int androidVersion = Integer.parseInt(android.os.Build.VERSION.SDK);
-            String library = "jni_norwegianime_cupcake-eclair";
-            if (androidVersion == 8)
-                library = "jni_norwegianime_froyo";
-            else if (androidVersion == 9)
-                library = "jni_norwegianime_gingerbread";
-        	System.loadLibrary(library);
+        	System.loadLibrary(mNativeLibraryName);
         	nativeLibraryLoaded = true;
         } catch (UnsatisfiedLinkError ule) {
-            Log.e("BinaryDictionary", "Could not load native library " + (Integer.parseInt(android.os.Build.VERSION.SDK) > 7 ? "jni_norwegianime_froyo" : "jni_norwegianime"));
+            Log.e("BinaryDictionary", "Could not load native library " + mNativeLibraryName);
         }
     }
 

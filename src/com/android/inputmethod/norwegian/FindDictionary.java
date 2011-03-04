@@ -6,7 +6,6 @@ import java.util.List;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.os.Build;
-import android.util.Log;
 
 public class FindDictionary {
 

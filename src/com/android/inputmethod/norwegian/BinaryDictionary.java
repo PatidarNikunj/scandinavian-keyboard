@@ -18,6 +18,7 @@ package com.android.inputmethod.norwegian;
 
 import java.util.Arrays;
 
+import android.R.integer;
 import android.content.res.AssetManager;
 import android.util.Log;
 
@@ -40,10 +41,19 @@ public class BinaryDictionary extends Dictionary {
     private int[] mInputCodes = new int[MAX_WORD_LENGTH * MAX_ALTERNATIVES];
     private char[] mOutputChars = new char[MAX_WORD_LENGTH * MAX_WORDS];
     private int[] mFrequencies = new int[MAX_WORDS];
+    
+    private static boolean nativeLibraryLoaded = false;
 
     static {
         try {
-        	System.loadLibrary(Integer.parseInt(android.os.Build.VERSION.SDK) > 7 ? "jni_norwegianime_froyo" : "jni_norwegianime");
+            int androidVersion = Integer.parseInt(android.os.Build.VERSION.SDK);
+            String library = "jni_norwegianime_cupcake-eclair";
+            if (androidVersion == 8)
+                library = "jni_norwegianime_froyo";
+            else if (androidVersion == 9)
+                library = "jni_norwegianime_gingerbread";
+        	System.loadLibrary(library);
+        	nativeLibraryLoaded = true;
         } catch (UnsatisfiedLinkError ule) {
             Log.e("BinaryDictionary", "Could not load native library " + (Integer.parseInt(android.os.Build.VERSION.SDK) > 7 ? "jni_norwegianime_froyo" : "jni_norwegianime"));
         }
@@ -55,7 +65,7 @@ public class BinaryDictionary extends Dictionary {
      * @param resId the resource containing the raw binary dictionary
      */
     public BinaryDictionary(Resources res, int resId) {
-        if (resId != 0) {
+        if (resId != 0 && nativeLibraryLoaded) {
             loadDictionary(res, resId);
         }
     }
@@ -82,6 +92,9 @@ public class BinaryDictionary extends Dictionary {
 
     @Override
     public void getWords(final WordComposer codes, final WordCallback callback) {
+        if (!nativeLibraryLoaded)
+            return;
+        
         final int codesSize = codes.size();
         // Wont deal with really long words.
         if (codesSize > MAX_WORD_LENGTH - 1) return;
@@ -128,7 +141,7 @@ public class BinaryDictionary extends Dictionary {
 
     @Override
     public boolean isValidWord(CharSequence word) {
-        if (word == null) return false;
+        if (word == null || !nativeLibraryLoaded) return false;
         char[] chars = word.toString().toCharArray();
         return isValidWordNative(mNativeDict, chars, chars.length);
     }

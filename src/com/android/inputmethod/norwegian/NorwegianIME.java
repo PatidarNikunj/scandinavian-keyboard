@@ -725,28 +725,30 @@ public class NorwegianIME extends InputMethodService
                 if (isWordSeparator(primaryCode)) {
                     handleSeparator(primaryCode);
                 } else {
-                	if(mKeyboardType == 2) { // Postponed until next version. Testing of phone layout
-                		mKeyPressesCount++;
-                		if(primaryCode != mLastOnKeyCode || when > mLastKeyTime + 1000)
-                			mKeyPressesCount = 0;
-                		switch(mKeyPressesCount) {
-                		case 0:
-                			handleCharacter(primaryCode, keyCodes);
-                			break;
-                		case 1:
-                			replaceLastCharacter(primaryCode + 1, keyCodes);
-                			break;
-                		case 2:
-                			replaceLastCharacter(primaryCode + 2, keyCodes);
-                			break;
-                		}
-                	} else {
-                		String k = primaryCode + "    ";
-                		for (int i : keyCodes)
-                			k += i + " ";
-                		Log.d("SK", k);
-                		handleCharacter(primaryCode, keyCodes);
-                	}
+                    handleCharacter(primaryCode, keyCodes);
+                    // Postponed until next version. Testing of phone layout
+//                	if(mKeyboardType == 2) {
+//                		mKeyPressesCount++;
+//                		if(primaryCode != mLastOnKeyCode || when > mLastKeyTime + 1000)
+//                			mKeyPressesCount = 0;
+//                		switch(mKeyPressesCount) {
+//                		case 0:
+//                			handleCharacter(primaryCode, keyCodes);
+//                			break;
+//                		case 1:
+//                			replaceLastCharacter(primaryCode + 1, keyCodes);
+//                			break;
+//                		case 2:
+//                			replaceLastCharacter(primaryCode + 2, keyCodes);
+//                			break;
+//                		}
+//                	} else {
+//                		String k = primaryCode + "    ";
+//                		for (int i : keyCodes)
+//                			k += i + " ";
+//                		Log.d("SK", k);
+//                		handleCharacter(primaryCode, keyCodes);
+//                	}
                 }
                 // Cancel the just reverted state
                 mJustRevertedSeparator = null;

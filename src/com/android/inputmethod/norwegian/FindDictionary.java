@@ -6,6 +6,7 @@ import java.util.List;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.os.Build;
+import android.util.Log;
 
 public class FindDictionary {
 
@@ -14,7 +15,6 @@ public class FindDictionary {
 	private String secondDefaultPkgSuffix = "dictionary";
 	private String latinPkg;
 	private String latinVoicePkg;
-	private String latinName;
 	private int SDKVersion;
 	
 	private Context context;
@@ -25,7 +25,6 @@ public class FindDictionary {
 		this.context = context;
 		this.latinPkg = context.getResources().getString(R.string.dictionary_builtin_pkg);
 		this.latinVoicePkg = context.getResources().getString(R.string.dictionary_builtin_voice_pkg);
-		this.latinName = context.getResources().getString(R.string.dictionary_builtin_name);
 		this.SDKVersion = Integer.parseInt(Build.VERSION.SDK);
 		
     	ArrayList<String> dictPackagesTmp = new ArrayList<String>();
@@ -34,7 +33,7 @@ public class FindDictionary {
     		String pkg = installedPackages.get(i).packageName;
     		if(pkg.startsWith(defaultPkgPrefix) || pkg.startsWith(secondDefaultPkgPrefix) && pkg.endsWith(secondDefaultPkgSuffix))
     			dictPackagesTmp.add(pkg);
-    		else if (pkg.equals(latinPkg) || pkg.equals(latinVoicePkg) && SDKVersion == 7) {
+    		else if (SDKVersion < 7 && pkg.equals(latinPkg) || SDKVersion == 7 && pkg.equals(latinVoicePkg)) {
     			dictPackagesTmp.add(pkg);
     			latinDictInstalled = pkg;
     		}
@@ -54,21 +53,15 @@ public class FindDictionary {
 	}
 	
 	public String[] getPackageNames() {
-		String[] pkgNames = new String[dictPkgNames.length];
-		for (int i = 0; i < dictPkgNames.length; i++)
-			pkgNames[i] = dictPkgNames[i];
-		return pkgNames;
+		return dictPkgNames;
 	}
 	
 	public String findPackageName(String language) {
-		if (latinName.equals(language.toLowerCase())) {
-			if(latinDictInstalled != null)
-				return latinDictInstalled;
-		} else {
-			for(String pkg : dictPkgNames)
-				if(pkg.endsWith(language.toLowerCase()) || pkg.endsWith(language.toLowerCase() + secondDefaultPkgSuffix))
-					return pkg;
-		}
+	    for(String pkg : dictPkgNames)
+			if(pkg.endsWith(language.toLowerCase()) || pkg.endsWith(language.toLowerCase() + secondDefaultPkgSuffix))
+				return pkg;
+		if(latinDictInstalled != null)
+            return latinDictInstalled;
 		return context.getPackageName();
 	}
 	

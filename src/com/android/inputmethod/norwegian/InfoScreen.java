@@ -30,8 +30,6 @@ public class InfoScreen extends Activity {
         
         if(Integer.parseInt(Build.VERSION.SDK) < 5)
         	enableText.setText(getResources().getString(R.string.app_info_enable).replace("Language & keyboard", "Locale & text"));
-        else if(Integer.parseInt(Build.VERSION.SDK) == 8)
-        	enableText.setText(getResources().getString(R.string.app_info_enable).replace("\n\n", "\n\nImportant: Dictionaries don\'t work in Android 2.2 Froyo yet. I'm working on fixing it.\n\n"));
         
         enableButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {

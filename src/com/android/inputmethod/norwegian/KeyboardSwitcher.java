@@ -187,7 +187,7 @@ public class KeyboardSwitcher {
         }
         
         if(mKeyboardType == TYPE_PHONE)
-        	return new KeyboardId(R.xml.kbd_phone_keyboard, KEYBOARDMODE_NORMAL, true);
+            return new KeyboardId(R.xml.kbd_phone_keyboard, KEYBOARDMODE_NORMAL, true);
 
         int kbd_layout;
         switch(mKeyboardLayout) {
@@ -214,11 +214,11 @@ public class KeyboardSwitcher {
                 kbd_layout = R.xml.kbd_qwerty_se;
                 break;
             case 9:
-            	kbd_layout = R.xml.kbd_qwerty_is;
-            	break;
+                kbd_layout = R.xml.kbd_qwerty_is;
+                break;
             case 10:
-            	kbd_layout = R.xml.kbd_qwerty_lv;
-            	break;
+                kbd_layout = R.xml.kbd_qwerty_lv;
+                break;
             default:
                  kbd_layout = R.xml.kbd_qwerty_no;
         }

@@ -75,7 +75,7 @@ public class Suggest implements Dictionary.WordCallback {
     
     public void setCorrectionMode(int mode, boolean quickFixes) {
         mCorrectionMode = mode;
-	useQuickFixes = quickFixes;
+    useQuickFixes = quickFixes;
     }
 
     /**

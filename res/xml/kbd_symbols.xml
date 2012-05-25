@@ -55,7 +55,7 @@
         <Key android:codes="57" android:keyLabel="9"/>
         <Key android:codes="48" android:keyLabel="0" 
                 android:popupKeyboard="@xml/kbd_popup_template"
-                android:popupCharacters="ⁿ∅"        
+                android:popupCharacters="ⁿ∅"
                 android:keyEdgeFlags="right"/>
     </Row>
     
@@ -65,7 +65,7 @@
         <Key android:codes="36" android:keyLabel="$"
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="¢£€¥₣₤₱"
-        />        
+        />
         <Key android:codes="37" android:keyLabel="%"
                 android:popupKeyboard="@xml/kbd_popup_template"
                 android:popupCharacters="‰"

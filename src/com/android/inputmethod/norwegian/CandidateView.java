@@ -112,7 +112,7 @@ public class CandidateView extends View {
     public CandidateView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mSelectionHighlight = context.getResources().getDrawable(
-        		R.drawable.list_selector_background_pressed);
+                R.drawable.list_selector_background_pressed);
 
         LayoutInflater inflate =
             (LayoutInflater) context
@@ -153,7 +153,7 @@ public class CandidateView extends View {
                 if (getScrollX() < 0) {
                     scrollTo(0, getScrollY());
                 }
-                if (distanceX > 0 && getScrollX() + width > mTotalWidth) {                    
+                if (distanceX > 0 && getScrollX() + width > mTotalWidth) {
                     scrollBy(-(int)distanceX, 0);
                 }
                 mTargetScrollX = getScrollX();

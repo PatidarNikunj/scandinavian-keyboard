@@ -120,10 +120,10 @@ public class NorwegianIMESettings extends PreferenceActivity {
         
         Preference.OnPreferenceChangeListener pcl = new Preference.OnPreferenceChangeListener(){
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-            	if (preference instanceof ListPreference)
-            		((ListPreference) preference).setValue(newValue.toString());
-            	else if (preference instanceof CheckBoxPreference)
-            		((CheckBoxPreference) preference).setChecked((Boolean)newValue);
+                if (preference instanceof ListPreference)
+                    ((ListPreference) preference).setValue(newValue.toString());
+                else if (preference instanceof CheckBoxPreference)
+                    ((CheckBoxPreference) preference).setChecked((Boolean)newValue);
                 addRemoveQuickFixes();
                 return true;
             }
@@ -134,13 +134,13 @@ public class NorwegianIMESettings extends PreferenceActivity {
         mDictionary.setOnPreferenceChangeListener(pcl);
         
         for(ListPreference swipe : mSwipe) {
-        	swipe.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {				
-				public boolean onPreferenceChange(Preference preference, Object newValue) {
-					((ListPreference) preference).setValue(newValue.toString());
-					addRemoveSwipe();
-					return true;
-				}
-			});
+            swipe.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    ((ListPreference) preference).setValue(newValue.toString());
+                    addRemoveSwipe();
+                    return true;
+                }
+            });
         }
     }
 
@@ -173,14 +173,14 @@ public class NorwegianIMESettings extends PreferenceActivity {
         switch (id) {
         case DIALOG_HELP:
             View v = LayoutInflater.from(this).inflate(R.layout.dialog, null);
-		    TextView text = (TextView) v.findViewById(R.id.dialogText);
-		    String resultsTextFormat = getString(R.string.help_text);
+            TextView text = (TextView) v.findViewById(R.id.dialogText);
+            String resultsTextFormat = getString(R.string.help_text);
             String resultsText = String.format(resultsTextFormat);
             CharSequence styledResults = Html.fromHtml(resultsText);
-		    text.setText(styledResults);
-		    text.setTextColor(text.getCurrentTextColor());
-		    text.setMovementMethod(LinkMovementMethod.getInstance());
-		    
+            text.setText(styledResults);
+            text.setTextColor(text.getCurrentTextColor());
+            text.setMovementMethod(LinkMovementMethod.getInstance());
+            
             d = new AlertDialog.Builder(this)
                     .setTitle(R.string.help)
                     .setView(v)
@@ -202,19 +202,19 @@ public class NorwegianIMESettings extends PreferenceActivity {
             break;
             
         case DIALOG_VIBRATE_OPTIONS:
-        	View vibrateView = LayoutInflater.from(this).inflate(R.layout.dialog_vibrate, null);
-        	final CheckBox vibrateEnable = (CheckBox) vibrateView.findViewById(R.id.vibrate_enable);
-        	final TextView vibrateDurationText = (TextView) vibrateView.findViewById(R.id.vibrate_duration_text);
-        	final SeekBar vibrateDuration = (SeekBar) vibrateView.findViewById(R.id.vibrate_duration);
-        	final CheckBox vibrateBugFix = (CheckBox) vibrateView.findViewById(R.id.vibrate_bug_fix);
+            View vibrateView = LayoutInflater.from(this).inflate(R.layout.dialog_vibrate, null);
+            final CheckBox vibrateEnable = (CheckBox) vibrateView.findViewById(R.id.vibrate_enable);
+            final TextView vibrateDurationText = (TextView) vibrateView.findViewById(R.id.vibrate_duration_text);
+            final SeekBar vibrateDuration = (SeekBar) vibrateView.findViewById(R.id.vibrate_duration);
+            final CheckBox vibrateBugFix = (CheckBox) vibrateView.findViewById(R.id.vibrate_bug_fix);
             
-        	vibrateEnable.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					vibrateDuration.setEnabled(isChecked);
-					vibrateBugFix.setEnabled(isChecked);
-				}
-			});
-			
+            vibrateEnable.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    vibrateDuration.setEnabled(isChecked);
+                    vibrateBugFix.setEnabled(isChecked);
+                }
+            });
+            
             vibrateDuration.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     vibrateDurationText.setText(getResources().getString(R.string.vibrate_duration) + " " + Integer.toString(progress) + " ms");
@@ -240,19 +240,19 @@ public class NorwegianIMESettings extends PreferenceActivity {
             break;
             
         case DIALOG_AUTO_DICTIONARY_OPTIONS:
-           	View autoDictView = LayoutInflater.from(this).inflate(R.layout.dialog_auto_dictionary, null);
-        	final CheckBox autoDictEnable = (CheckBox) autoDictView.findViewById(R.id.auto_dictionary_enable);
-        	final EditText autoDictLimit = (EditText) autoDictView.findViewById(R.id.auto_dictionary_limit);
-        	final CheckBox autoDictCaseSensitive = (CheckBox) autoDictView.findViewById(R.id.auto_dictionary_case_sensitive);
+               View autoDictView = LayoutInflater.from(this).inflate(R.layout.dialog_auto_dictionary, null);
+            final CheckBox autoDictEnable = (CheckBox) autoDictView.findViewById(R.id.auto_dictionary_enable);
+            final EditText autoDictLimit = (EditText) autoDictView.findViewById(R.id.auto_dictionary_limit);
+            final CheckBox autoDictCaseSensitive = (CheckBox) autoDictView.findViewById(R.id.auto_dictionary_case_sensitive);
             
-        	autoDictEnable.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					autoDictLimit.setEnabled(isChecked);
-					autoDictLimit.setClickable(isChecked);
-					autoDictCaseSensitive.setEnabled(isChecked);
-				}
-			});
-        	
+            autoDictEnable.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    autoDictLimit.setEnabled(isChecked);
+                    autoDictLimit.setClickable(isChecked);
+                    autoDictCaseSensitive.setEnabled(isChecked);
+                }
+            });
+            
             d = new AlertDialog.Builder(this)
                   .setTitle(R.string.auto_dictionary_options)
                   .setView(autoDictView)
@@ -262,62 +262,62 @@ public class NorwegianIMESettings extends PreferenceActivity {
                           editor.putBoolean(AUTO_DICTIONARY_ENABLE, autoDictEnable.isChecked());
                           String limit = autoDictLimit.getText().toString();
                           if(!"".equals(limit))
-                        	  editor.putString(AUTO_DICTIONARY_LIMIT, autoDictLimit.getText().toString());
+                              editor.putString(AUTO_DICTIONARY_LIMIT, autoDictLimit.getText().toString());
                           editor.putBoolean(AUTO_DICTIONARY_CASE_SENSITIVE, autoDictCaseSensitive.isChecked());
                           editor.commit();
                       }
                   })
                   .setNegativeButton(android.R.string.cancel, null)
                   .create();
-        	break;
+            break;
         }
         return d;
     }
 
     @Override
     protected void onPrepareDialog(int id, Dialog d) {
-    	switch (id) {
-		case DIALOG_VIBRATE_OPTIONS:
-    		AlertDialog vibrateDialog = (AlertDialog) d;
-    		CheckBox vibrateEnable = (CheckBox) vibrateDialog.findViewById(R.id.vibrate_enable);
-        	TextView vibrateDurationText = (TextView) vibrateDialog.findViewById(R.id.vibrate_duration_text);
-        	SeekBar vibrateDuration = (SeekBar) vibrateDialog.findViewById(R.id.vibrate_duration);
-        	CheckBox vibrateBugFix = (CheckBox) vibrateDialog.findViewById(R.id.vibrate_bug_fix);
-        	
+        switch (id) {
+        case DIALOG_VIBRATE_OPTIONS:
+            AlertDialog vibrateDialog = (AlertDialog) d;
+            CheckBox vibrateEnable = (CheckBox) vibrateDialog.findViewById(R.id.vibrate_enable);
+            TextView vibrateDurationText = (TextView) vibrateDialog.findViewById(R.id.vibrate_duration_text);
+            SeekBar vibrateDuration = (SeekBar) vibrateDialog.findViewById(R.id.vibrate_duration);
+            CheckBox vibrateBugFix = (CheckBox) vibrateDialog.findViewById(R.id.vibrate_bug_fix);
+            
             sp = PreferenceManager.getDefaultSharedPreferences(this);
             boolean vibrationEnabled = sp.getBoolean(VIBRATE_ENABLE, true);
             int vibrationDurationValue = sp.getInt(VIBRATE_DURATION, getResources().getInteger(R.integer.vibrate_duration_ms));
-        	
+            
             vibrateEnable.setChecked(vibrationEnabled);
             vibrateDurationText.setText(getResources().getString(R.string.vibrate_duration) + " " + Integer.toString(vibrationDurationValue) + " ms");
-        	vibrateDuration.setProgress(vibrationDurationValue);
-        	vibrateBugFix.setChecked(sp.getBoolean(VIBRATE_BUG_FIX, false));
-        	
-        	if(!vibrationEnabled) {
-        		vibrateDuration.setEnabled(false);
-        		vibrateBugFix.setEnabled(false);
-        	}
-			break;
+            vibrateDuration.setProgress(vibrationDurationValue);
+            vibrateBugFix.setChecked(sp.getBoolean(VIBRATE_BUG_FIX, false));
+            
+            if(!vibrationEnabled) {
+                vibrateDuration.setEnabled(false);
+                vibrateBugFix.setEnabled(false);
+            }
+            break;
 
-		case DIALOG_AUTO_DICTIONARY_OPTIONS:
-    		AlertDialog autoDictDialog = (AlertDialog) d;
-    		CheckBox autoDictEnable = (CheckBox) autoDictDialog.findViewById(R.id.auto_dictionary_enable);
-        	EditText autoDictLimit = (EditText) autoDictDialog.findViewById(R.id.auto_dictionary_limit);
-        	CheckBox autoDictCaseSensitive = (CheckBox) autoDictDialog.findViewById(R.id.auto_dictionary_case_sensitive);
-        	
+        case DIALOG_AUTO_DICTIONARY_OPTIONS:
+            AlertDialog autoDictDialog = (AlertDialog) d;
+            CheckBox autoDictEnable = (CheckBox) autoDictDialog.findViewById(R.id.auto_dictionary_enable);
+            EditText autoDictLimit = (EditText) autoDictDialog.findViewById(R.id.auto_dictionary_limit);
+            CheckBox autoDictCaseSensitive = (CheckBox) autoDictDialog.findViewById(R.id.auto_dictionary_case_sensitive);
+            
             sp = PreferenceManager.getDefaultSharedPreferences(this);
             boolean autoDictEnabled = sp.getBoolean(AUTO_DICTIONARY_ENABLE, true);
-        	
+            
             autoDictEnable.setChecked(autoDictEnabled);
-        	autoDictLimit.setText(sp.getString(AUTO_DICTIONARY_LIMIT, getResources().getString(R.string.auto_dictionary_limit_default)));
-        	autoDictCaseSensitive.setChecked(sp.getBoolean(AUTO_DICTIONARY_CASE_SENSITIVE, false));
-        	
-        	if(!autoDictEnabled) {
-        		autoDictLimit.setEnabled(false);
-        		autoDictCaseSensitive.setEnabled(false);
-        	}
-			break;
-		}
+            autoDictLimit.setText(sp.getString(AUTO_DICTIONARY_LIMIT, getResources().getString(R.string.auto_dictionary_limit_default)));
+            autoDictCaseSensitive.setChecked(sp.getBoolean(AUTO_DICTIONARY_CASE_SENSITIVE, false));
+            
+            if(!autoDictEnabled) {
+                autoDictLimit.setEnabled(false);
+                autoDictCaseSensitive.setEnabled(false);
+            }
+            break;
+        }
     }
     
     @Override
@@ -330,7 +330,7 @@ public class NorwegianIMESettings extends PreferenceActivity {
             startActivity(new Intent(Intent.ACTION_VIEW,
                               Uri.parse("market://search?q=scandinavian keyboard")));
         } else if (preference == mAutoDictionaryOptions) {
-        	showDialog(DIALOG_AUTO_DICTIONARY_OPTIONS);
+            showDialog(DIALOG_AUTO_DICTIONARY_OPTIONS);
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -341,32 +341,32 @@ public class NorwegianIMESettings extends PreferenceActivity {
         String dictionary = sp.getString(DICTIONARY, getResources().getString(R.string.dictionary_list_default_value));
         
         if(keyboardLayout == 2 && !dictionaryManually || dictionaryManually &&
-        		(dictionary.contains(getResources().getString(R.string.dictionary_builtin_name)) || dictionary.equals(getResources().getString(R.string.dictionary_builtin_pkg))))
+                (dictionary.contains(getResources().getString(R.string.dictionary_builtin_name)) || dictionary.equals(getResources().getString(R.string.dictionary_builtin_pkg))))
             ((PreferenceGroup) findPreference(PREDICTION_SETTINGS_KEY)).addPreference(mQuickFixes);
         else
             ((PreferenceGroup) findPreference(PREDICTION_SETTINGS_KEY)).removePreference(mQuickFixes);
     }
     
     private void addRemoveSwipe() {
-    	boolean keyboardLayoutSelected = false;
-    	boolean dictionarySelected = false;
-    	for(ListPreference swipe : mSwipe) {
-    		if("7".equals(swipe.getValue()) || "8".equals(swipe.getValue()))
-    			keyboardLayoutSelected = true;
-    		if("9".equals(swipe.getValue()) || "10".equals(swipe.getValue()))
-    			dictionarySelected = true;
-    	}
-    	if(keyboardLayoutSelected)
-    		((PreferenceCategory) findPreference(SWIPE_SETTINGS)).addPreference(mSwipeKeyboardLayout);
-    	else
-    		((PreferenceCategory) findPreference(SWIPE_SETTINGS)).removePreference(mSwipeKeyboardLayout);
-    	if(dictionarySelected) {
-    		((PreferenceCategory) findPreference(SWIPE_SETTINGS)).addPreference(mSwipeDictionary);
-    		mDictionaryManually.setChecked(true);
-    	    SharedPreferences.Editor editor = sp.edit();
-    	    editor.putBoolean(DICTIONARY_MANUALLY, true);
-    	    editor.commit();
-    	} else
-    		((PreferenceCategory) findPreference(SWIPE_SETTINGS)).removePreference(mSwipeDictionary);
+        boolean keyboardLayoutSelected = false;
+        boolean dictionarySelected = false;
+        for(ListPreference swipe : mSwipe) {
+            if("7".equals(swipe.getValue()) || "8".equals(swipe.getValue()))
+                keyboardLayoutSelected = true;
+            if("9".equals(swipe.getValue()) || "10".equals(swipe.getValue()))
+                dictionarySelected = true;
+        }
+        if(keyboardLayoutSelected)
+            ((PreferenceCategory) findPreference(SWIPE_SETTINGS)).addPreference(mSwipeKeyboardLayout);
+        else
+            ((PreferenceCategory) findPreference(SWIPE_SETTINGS)).removePreference(mSwipeKeyboardLayout);
+        if(dictionarySelected) {
+            ((PreferenceCategory) findPreference(SWIPE_SETTINGS)).addPreference(mSwipeDictionary);
+            mDictionaryManually.setChecked(true);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putBoolean(DICTIONARY_MANUALLY, true);
+            editor.commit();
+        } else
+            ((PreferenceCategory) findPreference(SWIPE_SETTINGS)).removePreference(mSwipeDictionary);
     }
 }

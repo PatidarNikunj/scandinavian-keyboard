@@ -174,7 +174,7 @@
     <!-- Tip to dismiss keyboard -->
     <string name="tip_dismiss">Press the back key \u21B6 to close the keyboard at any point</string>
     <!-- Tip to press ?123 to access numbers and symbols -->
-    <string name="tip_access_symbols">Access numbers and symbols</string>    
+    <string name="tip_access_symbols">Access numbers and symbols</string>
     <!-- Tip to long press on typed word to add to dictionary -->
     <string name="tip_add_to_dictionary">Press and hold the left-most word to add it to the dictionary
         </string>
@@ -374,16 +374,16 @@ Homepage:&lt;br&gt;
     <string name="user_dict_settings_context_menu_delete_title">Delete</string>
     <!-- User dictionary settings. The text to show when there are no user-defined words in the dictionary -->
     <string name="user_dict_settings_empty_text">You do not have any words in the user dictionary. You can add a word through the menu or by pressing and holding at the leftmost word in the suggestions above the keyboard.</string>
-	
-	<string name="fast_scroll_alphabet">\u0020ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
-	
-	<string name="import_title">Import</string>
-	<string name="export_title">Export</string>
-	<string name="import_export_path_text">Path to file</string>
-	<string name="import_keep_existing">Keep existing words</string>
-	<string name="error">Error</string>
-	<string name="import_error_1">File not found</string>
-	<string name="import_error_2">Could not read file</string>
-	<string name="import_error_3">File has wrong format, second column is not a number</string>
-	<string name="export_error_1">Could not write file</string>
+    
+    <string name="fast_scroll_alphabet">\u0020ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
+    
+    <string name="import_title">Import</string>
+    <string name="export_title">Export</string>
+    <string name="import_export_path_text">Path to file</string>
+    <string name="import_keep_existing">Keep existing words</string>
+    <string name="error">Error</string>
+    <string name="import_error_1">File not found</string>
+    <string name="import_error_2">Could not read file</string>
+    <string name="import_error_3">File has wrong format, second column is not a number</string>
+    <string name="export_error_1">Could not write file</string>
 </resources>

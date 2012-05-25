@@ -74,6 +74,6 @@
             android:layout_height="fill_parent"
             android:clickable="true"
             />
-    </LinearLayout>        
+    </LinearLayout>
     
 </com.android.inputmethod.norwegian.CandidateViewContainer>

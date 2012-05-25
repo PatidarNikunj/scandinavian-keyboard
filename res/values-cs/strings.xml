@@ -102,5 +102,5 @@
     <string name="user_dict_settings_context_menu_edit_title" msgid="2210564879320004837">"Upravit"</string>
     <string name="user_dict_settings_context_menu_delete_title" msgid="9140703913776549054">"Smazat"</string>
     <string name="user_dict_settings_empty_text" msgid="6209268025109242806">"V uživatelském slovníku nejsou žádná slova. Slovo můžete přidat pomocí nabídky."</string>
-	<string name="fast_scroll_alphabet" msgid="5433275485499039199">" AÁBCČDĎEÉĚFGHCHIÍJKLMNŇOÓPQRŘSŠTŤUÚVWXYÝZŽ"</string>
+    <string name="fast_scroll_alphabet" msgid="5433275485499039199">" AÁBCČDĎEÉĚFGHCHIÍJKLMNŇOÓPQRŘSŠTŤUÚVWXYÝZŽ"</string>
 </resources>

@@ -102,5 +102,5 @@
     <string name="user_dict_settings_context_menu_edit_title" msgid="2210564879320004837">"Düzenle"</string>
     <string name="user_dict_settings_context_menu_delete_title" msgid="9140703913776549054">"Sil"</string>
     <string name="user_dict_settings_empty_text" msgid="6209268025109242806">"Kullanıcı sözlüğünüzde hiçbir kelime yok. Menüyü kullanarak kelime ekleyebilirsiniz."</string>
-	<string name="fast_scroll_alphabet" msgid="5433275485499039199">" ABCDEFGHIJKLMNOPQRSTUVWXYZ"</string>
+    <string name="fast_scroll_alphabet" msgid="5433275485499039199">" ABCDEFGHIJKLMNOPQRSTUVWXYZ"</string>
 </resources>

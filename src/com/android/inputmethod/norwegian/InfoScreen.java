@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class InfoScreen extends Activity {
-	
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,17 +29,17 @@ public class InfoScreen extends Activity {
         Button closeButton = (Button) this.findViewById(R.id.app_info_button_close);
         
         if(Integer.parseInt(Build.VERSION.SDK) < 5)
-        	enableText.setText(getResources().getString(R.string.app_info_enable).replace("Language & keyboard", "Locale & text"));
+            enableText.setText(getResources().getString(R.string.app_info_enable).replace("Language & keyboard", "Locale & text"));
         
         enableButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	startActivity(new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS));
+                startActivity(new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS));
             }
         });
         
         chooseButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showInputMethodPicker();
+                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showInputMethodPicker();
             }
         });
         

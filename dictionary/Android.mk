@@ -4,12 +4,12 @@ include $(CLEAR_VARS)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/src
 
 LOCAL_SRC_FILES := \
-	jni/com_android_inputmethod_norwegian_BinaryDictionary.cpp \
-	src/dictionary.cpp
+    jni/com_android_inputmethod_norwegian_BinaryDictionary.cpp \
+    src/dictionary.cpp
 
 LOCAL_C_INCLUDES += \
     external/icu4c/common \
-	$(JNI_H_INCLUDE)
+    $(JNI_H_INCLUDE)
 
 LOCAL_LDLIBS := -lm
 

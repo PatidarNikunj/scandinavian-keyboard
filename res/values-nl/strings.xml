@@ -102,5 +102,5 @@
     <string name="user_dict_settings_context_menu_edit_title" msgid="2210564879320004837">"Bewerken"</string>
     <string name="user_dict_settings_context_menu_delete_title" msgid="9140703913776549054">"Verwijderen"</string>
     <string name="user_dict_settings_empty_text" msgid="6209268025109242806">"U heeft geen woorden in het gebruikerswoordenboek. U kunt een woord toevoegen via het menu."</string>
-	<string name="fast_scroll_alphabet" msgid="5433275485499039199">" ABCDEFGHIJKLMNOPQRSTUVWXYZ"</string>
+    <string name="fast_scroll_alphabet" msgid="5433275485499039199">" ABCDEFGHIJKLMNOPQRSTUVWXYZ"</string>
 </resources>

@@ -102,7 +102,7 @@ public class TextEntryState {
         }
         try {
             sKeyLocationFile.close();
-            // Write to log file            
+            // Write to log file
             // Write timestamp, settings,
             String out = DateFormat.format("MM:dd hh:mm:ss", Calendar.getInstance().getTime())
                     .toString()

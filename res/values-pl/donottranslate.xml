@@ -21,5 +21,5 @@
     <!-- Accented characters related to "z" -->
     <string name="alternates_for_z">źż</string>
     <!-- Accented characters related to "l" -->
-    <string name="alternates_for_l">ł</string>    
+    <string name="alternates_for_l">ł</string>
 </resources>

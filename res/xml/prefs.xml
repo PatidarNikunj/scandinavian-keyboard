@@ -107,25 +107,25 @@
                 android:dependency="swipe_enabled"
                 />
 
-	        <com.android.inputmethod.norwegian.ListPreferenceMultiSelect
-	            android:key="swipe_keyboard_layout"
-	            android:title="@string/swipe_keyboard_layout"
-	            android:entries="@array/keyboard_layouts"
-	            android:entryValues="@array/keyboard_layouts_values"
-	            android:persistent="true"
-	            android:defaultValue="#ALL#"
-	            android:dependency="swipe_enabled"
-	            />
-
-	        <com.android.inputmethod.norwegian.ListPreferenceMultiSelect
-	            android:key="swipe_dictionary"
-	            android:title="@string/swipe_dictionary"
-	            android:entries="@array/keyboard_layouts"
-	            android:entryValues="@array/keyboard_layouts_values"
-	            android:persistent="true"
+            <com.android.inputmethod.norwegian.ListPreferenceMultiSelect
+                android:key="swipe_keyboard_layout"
+                android:title="@string/swipe_keyboard_layout"
+                android:entries="@array/keyboard_layouts"
+                android:entryValues="@array/keyboard_layouts_values"
+                android:persistent="true"
                 android:defaultValue="#ALL#"
                 android:dependency="swipe_enabled"
-	            />
+                />
+
+            <com.android.inputmethod.norwegian.ListPreferenceMultiSelect
+                android:key="swipe_dictionary"
+                android:title="@string/swipe_dictionary"
+                android:entries="@array/keyboard_layouts"
+                android:entryValues="@array/keyboard_layouts_values"
+                android:persistent="true"
+                android:defaultValue="#ALL#"
+                android:dependency="swipe_enabled"
+                />
 
         </PreferenceCategory>
     </PreferenceScreen>

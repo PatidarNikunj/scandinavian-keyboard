@@ -50,8 +50,8 @@ public class BinaryDictionary extends Dictionary {
         else if (mAPILevel < 8)
             mNativeLibraryName = "jni_norwegianime_cupcake-eclair";
         try {
-        	System.loadLibrary(mNativeLibraryName);
-        	nativeLibraryLoaded = true;
+            System.loadLibrary(mNativeLibraryName);
+            nativeLibraryLoaded = true;
         } catch (UnsatisfiedLinkError ule) {
             Log.e("BinaryDictionary", "Could not load native library " + mNativeLibraryName);
         }
@@ -79,11 +79,11 @@ public class BinaryDictionary extends Dictionary {
     private final void loadDictionary(Resources res, int resId) {
         AssetManager am = res.getAssets(); //context.getResources().getAssets();
         try {
-        	String assetName;
-        	if ("raw".equals(res.getResourceTypeName(resId)))
-        		assetName = res.getString(resId); //context.getResources().getString(resId);
-        	else
-        		assetName = res.getString(0x7f040000);
+            String assetName;
+            if ("raw".equals(res.getResourceTypeName(resId)))
+                assetName = res.getString(resId); //context.getResources().getString(resId);
+            else
+                assetName = res.getString(0x7f040000);
             mNativeDict = openNative(am, assetName, TYPED_LETTER_MULTIPLIER, FULL_WORD_FREQ_MULTIPLIER);
         } catch (NotFoundException e) { }
     }

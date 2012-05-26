@@ -36,11 +36,13 @@ public class UserDictionary extends ExpandableDictionary {
     private static final int INDEX_FREQUENCY = 2;
     
     private ContentObserver mObserver;
+    private String mLocale;
     
     private boolean mRequiresReload;
     
-    public UserDictionary(Context context) {
-        super(context);
+    public UserDictionary(Context context,String locale) {
+        super(context, Suggest.DIC_USER);
+        mLocale = locale;
         // Perform a managed query. The Activity will handle closing and requerying the cursor
         // when needed.
         ContentResolver cres = context.getContentResolver();
@@ -62,12 +64,20 @@ public class UserDictionary extends ExpandableDictionary {
         }
     }
     
-    private synchronized void loadDictionary() {
+/*    private synchronized void loadDictionary() {
         Cursor cursor = getContext().getContentResolver()
                 .query(Words.CONTENT_URI, PROJECTION, "(locale IS NULL) or (locale=?)", 
                         new String[] { Locale.getDefault().toString() }, null);
         addWords(cursor);
         mRequiresReload = false;
+    }*/
+    
+    @Override
+    public void loadDictionaryAsync() {
+        Cursor cursor = getContext().getContentResolver()
+                .query(Words.CONTENT_URI, PROJECTION, "(locale IS NULL) or (locale=?)", 
+                        new String[] { mLocale }, null);
+        addWords(cursor);
     }
 
     /**
@@ -90,13 +100,17 @@ public class UserDictionary extends ExpandableDictionary {
         // In case the above does a synchronous callback of the change observer
         mRequiresReload = false;
     }
-
+/*
     @Override
     public synchronized void getWords(final WordComposer codes, final WordCallback callback) {
         if (mRequiresReload) loadDictionary();
         super.getWords(codes, callback);
+    }*/
+    @Override
+    public synchronized void getWords(final WordComposer codes, final WordCallback callback,
+            int[] nextLettersFrequencies) {
+        super.getWords(codes, callback, nextLettersFrequencies);
     }
-
     @Override
     public synchronized boolean isValidWord(CharSequence word) {
         if (mRequiresReload) loadDictionary();

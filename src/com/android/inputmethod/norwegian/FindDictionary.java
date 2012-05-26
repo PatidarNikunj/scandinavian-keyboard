@@ -5,7 +5,9 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.res.Resources;
 import android.os.Build;
+import android.util.Log;
 
 public class FindDictionary {
 
@@ -15,6 +17,8 @@ public class FindDictionary {
     private String latinPkg;
     private String latinVoicePkg;
     private int SDKVersion;
+    
+    private static final String TAG = "FindDictonary";
     
     private Context context;
     private String latinDictInstalled;
@@ -30,12 +34,14 @@ public class FindDictionary {
         List<PackageInfo> installedPackages = context.getPackageManager().getInstalledPackages(0);
         for (int i = 0; i < installedPackages.size(); i++) {
             String pkg = installedPackages.get(i).packageName;
-            if(pkg.startsWith(defaultPkgPrefix) || pkg.startsWith(secondDefaultPkgPrefix) && pkg.endsWith(secondDefaultPkgSuffix))
+            if(pkg.startsWith(defaultPkgPrefix) || pkg.startsWith(secondDefaultPkgPrefix) && pkg.endsWith(secondDefaultPkgSuffix)) {
                 dictPackagesTmp.add(pkg);
-            else if (SDKVersion < 7 && pkg.equals(latinPkg) || SDKVersion == 7 && pkg.equals(latinVoicePkg)) {
+                Log.i(TAG,"Dictionary Package found:" + pkg.toString());
+            }
+            /*else if (SDKVersion < 7 && pkg.equals(latinPkg) || SDKVersion == 7 && pkg.equals(latinVoicePkg)) {
                 dictPackagesTmp.add(pkg);
                 latinDictInstalled = pkg;
-            }
+            }*/
         }
         this.dictPkgNames = dictPackagesTmp.toArray(new String[dictPackagesTmp.size()]);
     }
@@ -64,16 +70,33 @@ public class FindDictionary {
         return context.getPackageName();
     }
     
-    public int getResId(String pkgName) {
-        if(pkgName.startsWith(secondDefaultPkgPrefix))
-            return 0x7f030000;
-        else if(pkgName.startsWith(defaultPkgPrefix))
+    public int getResId(String pkgName, Resources res) {
+        if(pkgName.startsWith(secondDefaultPkgPrefix)) {
+            //Find the raw and assign the ID
+            int rawid = res.getResourceName(0x7f030000).indexOf("raw");
+            if(rawid > 0) {
+                return 0x7f030000;
+            } else {
+                rawid = res.getResourceName(0x7f040000).indexOf("raw");
+                if(rawid > 0) {
+                    return 0x7f040000;
+                } else {
+                    rawid = res.getResourceName(0x7f050000).indexOf("raw");
+                    if(rawid > 0) {
+                        return 0x7f040000;
+                    } else {
+                        return 0;
+                    }
+                }
+            }
+        } else if(pkgName.startsWith(defaultPkgPrefix)) {
             return 0x7f040000;
-        else if(pkgName.equals(latinPkg))
+        } else if(pkgName.equals(latinPkg)) {
             return 0x7f050000;
-        else if(pkgName.equals(latinVoicePkg))
+        } else if(pkgName.equals(latinVoicePkg)) {
             return 0x7f050007;
-        else
+        } else {
             return 0;
+        }
     }
 }

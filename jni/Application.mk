@@ -1,0 +1,1 @@
+APP_BUILD_SCRIPT = $(APP_PROJECT_PATH)/jni/Android.mk

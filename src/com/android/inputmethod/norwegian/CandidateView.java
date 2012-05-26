@@ -122,6 +122,7 @@ public class CandidateView extends View {
         mPreviewPopup.setWindowLayoutMode(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         mPreviewPopup.setContentView(mPreviewText);
         mPreviewPopup.setBackgroundDrawable(null);
+        mPreviewPopup.setAnimationStyle(R.style.KeyPreviewAnimation);
         mColorNormal = context.getResources().getColor(R.color.candidate_normal);
         mColorRecommended = context.getResources().getColor(R.color.candidate_recommended);
         mColorOther = context.getResources().getColor(R.color.candidate_other);
@@ -134,8 +135,7 @@ public class CandidateView extends View {
         mPaint.setStrokeWidth(0);
         mDescent = (int) mPaint.descent();
         
-        mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
-            @Override
+        mGestureDetector = new GestureDetector(context, new GestureDetector.OnGestureListener(){
             public void onLongPress(MotionEvent me) {
                 if (mSuggestions.size() > 0) {
                     if (me.getX() + getScrollX() < mWordWidth[0] && getScrollX() < 10) {
@@ -144,7 +144,6 @@ public class CandidateView extends View {
                 }
             }
             
-            @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2,
                     float distanceX, float distanceY) {
                 final int width = getWidth();
@@ -160,6 +159,26 @@ public class CandidateView extends View {
                 hidePreview();
                 invalidate();
                 return true;
+            }
+
+            public boolean onDown(MotionEvent e) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean onFling(MotionEvent e1, MotionEvent e2,
+                    float velocityX, float velocityY) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public void onShowPress(MotionEvent e) {
+                // TODO Auto-generated method stub
+            }
+
+            public boolean onSingleTapUp(MotionEvent e) {
+                // TODO Auto-generated method stub
+                return false;
             }
         });
         setHorizontalFadingEdgeEnabled(true);

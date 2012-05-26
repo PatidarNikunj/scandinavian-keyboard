@@ -16,46 +16,26 @@
 
 package com.android.inputmethod.norwegian;
 
-import java.util.LinkedList;
-
 import android.content.Context;
-import android.os.AsyncTask;
 
 /**
  * Base class for an in-memory dictionary that can grow dynamically and can
  * be searched for suggestions and valid words.
  */
-public class ExpandableDictionary extends Dictionary {
-    /**
-     * There is difference between what java and native code can handle.
-     * It uses 32 because Java stack overflows when greater value is used.
-     */
-    protected static final int MAX_WORD_LENGTH = 32;
-
+public class ExpandableDictionary2 extends Dictionary2 {
     private Context mContext;
     private char[] mWordBuilder = new char[MAX_WORD_LENGTH];
-    private int mDicTypeId;
     private int mMaxDepth;
     private int mInputLength;
-    private int[] mNextLettersFrequencies;
-    private StringBuilder sb = new StringBuilder(MAX_WORD_LENGTH);
 
+    public static final int MAX_WORD_LENGTH = 32;
     private static final char QUOTE = '\'';
-
-    private boolean mRequiresReload;
-
-    private boolean mUpdatingDictionary;
-
-    // Use this lock before touching mUpdatingDictionary & mRequiresDownload
-    private Object mUpdatingLock = new Object();
 
     static class Node {
         char code;
         int frequency;
         boolean terminal;
-        Node parent;
         NodeArray children;
-        LinkedList<NextWord> ngrams; // Supports ngram
     }
 
     static class NodeArray {
@@ -79,55 +59,14 @@ public class ExpandableDictionary extends Dictionary {
         }
     }
 
-    static class NextWord {
-        Node word;
-        NextWord nextWord;
-        int frequency;
-
-        NextWord(Node word, int frequency) {
-            this.word = word;
-            this.frequency = frequency;
-        }
-    }
-
-
     private NodeArray mRoots;
 
     private int[][] mCodes;
 
-    ExpandableDictionary(Context context, int dicTypeId) {
+    ExpandableDictionary2(Context context) {
         mContext = context;
         clearDictionary();
         mCodes = new int[MAX_WORD_LENGTH][];
-        mDicTypeId = dicTypeId;
-    }
-
-    public void loadDictionary() {
-        synchronized (mUpdatingLock) {
-            startDictionaryLoadingTaskLocked();
-        }
-    }
-
-    public void startDictionaryLoadingTaskLocked() {
-        if (!mUpdatingDictionary) {
-            mUpdatingDictionary = true;
-            mRequiresReload = false;
-            new LoadDictionaryTask().execute();
-        }
-    }
-
-    public void setRequiresReload(boolean reload) {
-        synchronized (mUpdatingLock) {
-            mRequiresReload = reload;
-        }
-    }
-
-    public boolean getRequiresReload() {
-        return mRequiresReload;
-    }
-
-    /** Override to load your dictionary here, on a background thread. */
-    public void loadDictionaryAsync() {
     }
 
     Context getContext() {
@@ -139,11 +78,12 @@ public class ExpandableDictionary extends Dictionary {
     }
 
     public void addWord(String word, int frequency) {
-        addWordRec(mRoots, word, 0, frequency, null);
+        addWordRec(mRoots, word, 0, frequency);
     }
 
-    private void addWordRec(NodeArray children, final String word, final int depth,
-            final int frequency, Node parentNode) {
+    private void addWordRec(NodeArray children, final String word,
+            final int depth, final int frequency) {
+        
         final int wordLength = word.length();
         final char c = word.charAt(depth);
         // Does children have the current character?
@@ -160,7 +100,6 @@ public class ExpandableDictionary extends Dictionary {
         if (!found) {
             childNode = new Node();
             childNode.code = c;
-            childNode.parent = parentNode;
             children.add(childNode);
         }
         if (wordLength == depth + 1) {
@@ -173,21 +112,12 @@ public class ExpandableDictionary extends Dictionary {
         if (childNode.children == null) {
             childNode.children = new NodeArray();
         }
-        addWordRec(childNode.children, word, depth + 1, frequency, childNode);
+        addWordRec(childNode.children, word, depth + 1, frequency);
     }
 
     @Override
-    public void getWords(final WordComposer codes, final WordCallback callback,
-            int[] nextLettersFrequencies) {
-        synchronized (mUpdatingLock) {
-            // If we need to update, start off a background task
-            if (mRequiresReload) startDictionaryLoadingTaskLocked();
-            // Currently updating contacts, don't return any results.
-            if (mUpdatingDictionary) return;
-        }
-
+    public void getWords(final WordComposer codes, final WordCallback callback) {
         mInputLength = codes.size();
-        mNextLettersFrequencies = nextLettersFrequencies;
         if (mCodes.length < mInputLength) mCodes = new int[mInputLength][];
         // Cache the codes so that we don't have to lookup an array list
         for (int i = 0; i < mInputLength; i++) {
@@ -202,12 +132,7 @@ public class ExpandableDictionary extends Dictionary {
 
     @Override
     public synchronized boolean isValidWord(CharSequence word) {
-        synchronized (mUpdatingLock) {
-            // If we need to update, start off a background task
-            if (mRequiresReload) startDictionaryLoadingTaskLocked();
-            if (mUpdatingDictionary) return false;
-        }
-        final int freq = getWordFrequency(word);
+        final int freq = getWordFrequencyRec(mRoots, word, 0, word.length());
         return freq > -1;
     }
 
@@ -215,8 +140,32 @@ public class ExpandableDictionary extends Dictionary {
      * Returns the word's frequency or -1 if not found
      */
     public int getWordFrequency(CharSequence word) {
-        Node node = searchNode(mRoots, word, 0, word.length());
-        return (node == null) ? -1 : node.frequency;
+        return getWordFrequencyRec(mRoots, word, 0, word.length());
+    }
+
+    /**
+     * Returns the word's frequency or -1 if not found
+     */
+    private int getWordFrequencyRec(final NodeArray children, final CharSequence word, 
+            final int offset, final int length) {
+        final int count = children.length;
+        char currentChar = word.charAt(offset);
+        for (int j = 0; j < count; j++) {
+            final Node node = children.data[j];
+            if (node.code == currentChar) {
+                if (offset == length - 1) {
+                    if (node.terminal) {
+                        return node.frequency;
+                    }
+                } else {
+                    if (node.children != null) {
+                        int freq = getWordFrequencyRec(node.children, word, offset + 1, length);
+                        if (freq > -1) return freq;
+                    }
+                }
+            }
+        }
+        return -1;
     }
 
     /**
@@ -264,14 +213,8 @@ public class ExpandableDictionary extends Dictionary {
             if (completion) {
                 word[depth] = c;
                 if (terminal) {
-                    if (!callback.addWord(word, 0, depth + 1, freq * snr, mDicTypeId,
-                                DataType.UNIGRAM)) {
+                    if (!callback.addWord(word, 0, depth + 1, freq * snr)) {
                         return;
-                    }
-                    // Add to frequency of next letters for predictive correction
-                    if (mNextLettersFrequencies != null && depth >= inputIndex && skipPos < 0
-                            && mNextLettersFrequencies.length > word[inputIndex]) {
-                        mNextLettersFrequencies[word[inputIndex]]++;
                     }
                 }
                 if (children != null) {
@@ -297,14 +240,13 @@ public class ExpandableDictionary extends Dictionary {
                     if (currentChar == lowerC || currentChar == c) {
                         word[depth] = c;
 
-                        if (codeSize == inputIndex + 1) {
+                        if (codeSize == depth + 1) {
                             if (terminal) {
                                 if (INCLUDE_TYPED_WORD_IF_VALID 
                                         || !same(word, depth + 1, codes.getTypedWord())) {
                                     int finalFreq = freq * snr * addedAttenuation;
                                     if (skipPos < 0) finalFreq *= FULL_WORD_FREQ_MULTIPLIER;
-                                    callback.addWord(word, 0, depth + 1, finalFreq, mDicTypeId,
-                                            DataType.UNIGRAM);
+                                    callback.addWord(word, 0, depth + 1, finalFreq);
                                 }
                             }
                             if (children != null) {
@@ -323,184 +265,8 @@ public class ExpandableDictionary extends Dictionary {
         }
     }
 
-    protected int setBigram(String word1, String word2, int frequency) {
-        return addOrSetBigram(word1, word2, frequency, false);
-    }
-
-    protected int addBigram(String word1, String word2, int frequency) {
-        return addOrSetBigram(word1, word2, frequency, true);
-    }
-
-    /**
-     * Adds bigrams to the in-memory trie structure that is being used to retrieve any word
-     * @param frequency frequency for this bigrams
-     * @param addFrequency if true, it adds to current frequency
-     * @return returns the final frequency
-     */
-    private int addOrSetBigram(String word1, String word2, int frequency, boolean addFrequency) {
-        Node firstWord = searchWord(mRoots, word1, 0, null);
-        Node secondWord = searchWord(mRoots, word2, 0, null);
-        LinkedList<NextWord> bigram = firstWord.ngrams;
-        if (bigram == null || bigram.size() == 0) {
-            firstWord.ngrams = new LinkedList<NextWord>();
-            bigram = firstWord.ngrams;
-        } else {
-            for (NextWord nw : bigram) {
-                if (nw.word == secondWord) {
-                    if (addFrequency) {
-                        nw.frequency += frequency;
-                    } else {
-                        nw.frequency = frequency;
-                    }
-                    return nw.frequency;
-                }
-            }
-        }
-        NextWord nw = new NextWord(secondWord, frequency);
-        firstWord.ngrams.add(nw);
-        return frequency;
-    }
-
-    /**
-     * Searches for the word and add the word if it does not exist.
-     * @return Returns the terminal node of the word we are searching for.
-     */
-    private Node searchWord(NodeArray children, String word, int depth, Node parentNode) {
-        final int wordLength = word.length();
-        final char c = word.charAt(depth);
-        // Does children have the current character?
-        final int childrenLength = children.length;
-        Node childNode = null;
-        boolean found = false;
-        for (int i = 0; i < childrenLength; i++) {
-            childNode = children.data[i];
-            if (childNode.code == c) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            childNode = new Node();
-            childNode.code = c;
-            childNode.parent = parentNode;
-            children.add(childNode);
-        }
-        if (wordLength == depth + 1) {
-            // Terminate this word
-            childNode.terminal = true;
-            return childNode;
-        }
-        if (childNode.children == null) {
-            childNode.children = new NodeArray();
-        }
-        return searchWord(childNode.children, word, depth + 1, childNode);
-    }
-
-    // @VisibleForTesting
-    boolean reloadDictionaryIfRequired() {
-        synchronized (mUpdatingLock) {
-            // If we need to update, start off a background task
-            if (mRequiresReload) startDictionaryLoadingTaskLocked();
-            // Currently updating contacts, don't return any results.
-            return mUpdatingDictionary;
-        }
-    }
-
-    private void runReverseLookUp(final CharSequence previousWord, final WordCallback callback) {
-        Node prevWord = searchNode(mRoots, previousWord, 0, previousWord.length());
-        if (prevWord != null && prevWord.ngrams != null) {
-            reverseLookUp(prevWord.ngrams, callback);
-        }
-    }
-
-    @Override
-    public void getBigrams(final WordComposer codes, final CharSequence previousWord,
-            final WordCallback callback, int[] nextLettersFrequencies) {
-        if (!reloadDictionaryIfRequired()) {
-            runReverseLookUp(previousWord, callback);
-        }
-    }
-
-    /**
-     * Used only for testing purposes
-     * This function will wait for loading from database to be done
-     */
-    void waitForDictionaryLoading() {
-        while (mUpdatingDictionary) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-            }
-        }
-    }
-
-    /**
-     * reverseLookUp retrieves the full word given a list of terminal nodes and adds those words
-     * through callback.
-     * @param terminalNodes list of terminal nodes we want to add
-     */
-    private void reverseLookUp(LinkedList<NextWord> terminalNodes,
-            final WordCallback callback) {
-        Node node;
-        int freq;
-        for (NextWord nextWord : terminalNodes) {
-            node = nextWord.word;
-            freq = nextWord.frequency;
-            // TODO Not the best way to limit suggestion threshold
-            if (freq >= UserBigramDictionary.SUGGEST_THRESHOLD) {
-                sb.setLength(0);
-                do {
-                    sb.insert(0, node.code);
-                    node = node.parent;
-                } while(node != null);
-
-                // TODO better way to feed char array?
-                callback.addWord(sb.toString().toCharArray(), 0, sb.length(), freq, mDicTypeId,
-                        DataType.BIGRAM);
-            }
-        }
-    }
-
-    /**
-     * Search for the terminal node of the word
-     * @return Returns the terminal node of the word if the word exists
-     */
-    private Node searchNode(final NodeArray children, final CharSequence word, final int offset,
-            final int length) {
-        // TODO Consider combining with addWordRec
-        final int count = children.length;
-        char currentChar = word.charAt(offset);
-        for (int j = 0; j < count; j++) {
-            final Node node = children.data[j];
-            if (node.code == currentChar) {
-                if (offset == length - 1) {
-                    if (node.terminal) {
-                        return node;
-                    }
-                } else {
-                    if (node.children != null) {
-                        Node returnNode = searchNode(node.children, word, offset + 1, length);
-                        if (returnNode != null) return returnNode;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     protected void clearDictionary() {
         mRoots = new NodeArray();
-    }
-
-    private class LoadDictionaryTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... v) {
-            loadDictionaryAsync();
-            synchronized (mUpdatingLock) {
-                mUpdatingDictionary = false;
-            }
-            return null;
-        }
     }
 
     static char toLowerCase(char c) {

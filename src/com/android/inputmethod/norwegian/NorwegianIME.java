@@ -94,10 +94,13 @@ public class NorwegianIME extends InputMethodService
     private static final String PREF_SWAP_COLON = "swap_colon";
     private static final String PREF_AT_IS_WORD_SEPARATOR = "at_is_word_separator";
 
+    private static final String TAG = "NorwegianKeyboard";
+    
     private static final int MSG_UPDATE_SUGGESTIONS = 0;
     private static final int MSG_START_TUTORIAL = 1;
     private static final int MSG_UPDATE_SHIFT_STATE = 2;
     
+   
     // How many continuous deletes at which to start deleting at a higher speed.
     private static final int DELETE_ACCELERATE_AT = 20;
     // Key events coming any faster than this are long-presses.
@@ -114,59 +117,59 @@ public class NorwegianIME extends InputMethodService
     static final int KEYCODE_SPACE = ' ';
 
     // Contextual menu positions
-    private static final int POS_SETTINGS = 0;
-    private static final int POS_METHOD = 1;
-        private static final int POS_USER_DICTIONARY = 2;
-    private static final int POS_LAYOUT = 3;
-    private static final int POS_DICTIONARY = 4;
+    private static final int POS_SETTINGS        = 0;
+    private static final int POS_METHOD          = 1;
+    private static final int POS_USER_DICTIONARY = 2;
+    private static final int POS_LAYOUT          = 3;
+    private static final int POS_DICTIONARY      = 4;
     
-    private NorwegianKeyboardView mInputView;
-    private CandidateViewContainer mCandidateViewContainer;
-    private CandidateView mCandidateView;
-    private Suggest mSuggest;
-    private CompletionInfo[] mCompletions;
+    private NorwegianKeyboardView   mInputView;
+    private CandidateViewContainer  mCandidateViewContainer;
+    private CandidateView           mCandidateView;
+    private Suggest                 mSuggest;
+    private CompletionInfo[]        mCompletions;
     
-    private AlertDialog mOptionsDialog;
+    private AlertDialog             mOptionsDialog;
     
-    KeyboardSwitcher mKeyboardSwitcher;
+    KeyboardSwitcher                mKeyboardSwitcher;
     
-    private UserDictionary mUserDictionary;
-    private AutoDictionary mAutoDictionary;
+    private UserDictionary          mUserDictionary;
+    private AutoDictionary          mAutoDictionary;
     
-    private String mLocale;
+    private String                  mLocale;
 
     private StringBuilder mComposing = new StringBuilder();
-    private WordComposer mWord = new WordComposer();
-    private int mCommittedLength;
-    private boolean mPredicting;
-    private CharSequence mBestWord;
-    private boolean mPredictionOn;
-    private boolean mCompletionOn;
-    private boolean mAutoSpace;
-    private boolean mAutoCorrectOn;
-    private boolean mCapsLock;
-    private int mKeyboardType;
-    private int mKeyboardLayout;
-    private boolean mDictionaryManually;
-    private String mDictionary;
+    private WordComposer  mWord = new WordComposer();
+    private int           mCommittedLength;
+    private boolean       mPredicting;
+    private CharSequence  mBestWord;
+    private boolean       mPredictionOn;
+    private boolean       mCompletionOn;
+    private boolean       mAutoSpace;
+    private boolean       mAutoCorrectOn;
+    private boolean       mCapsLock;
+    private int           mKeyboardType;
+    private int           mKeyboardLayout;
+    private boolean       mDictionaryManually;
+    private String        mDictionary;
     private CharSequence[] mAvailableDictionaries;
     private CharSequence[] mAvailableDictionaryValues;
-    private boolean mVibrateOn;
-    private boolean mSoundOn;
-    private boolean mAutoCap;
-    private boolean mSwipeEnabled;
-    private int mSwipeUp;
-    private int mSwipeDown;
-    private int mSwipeLeft;
-    private int mSwipeRight;
-    private String mSwipeKeyboardLayout;
-    private String mSwipeDictionary;
-    private String mSkin;
-    private String mLastSkin;
+    private boolean       mVibrateOn;
+    private boolean       mSoundOn;
+    private boolean       mAutoCap;
+    private boolean       mSwipeEnabled;
+    private int        mSwipeUp;
+    private int        mSwipeDown;
+    private int        mSwipeLeft;
+    private int        mSwipeRight;
+    private String  mSwipeKeyboardLayout;
+    private String  mSwipeDictionary;
+    private String  mSkin;
+    private String  mLastSkin;
     private boolean mQuickFixes;
     private boolean mShowSuggestions;
     private boolean mAutoDictionaryEnabled;
-    private int mAutoDictionaryLimit;
+    private int     mAutoDictionaryLimit;
     private boolean mAutoDictionaryCaseSensitive;
     private boolean mSpaceAfterPrediction;
     private boolean mSwapColon;
@@ -176,18 +179,18 @@ public class NorwegianIME extends InputMethodService
     // Indicates whether the suggestion strip is to be on in landscape
     private boolean mJustAccepted;
     private CharSequence mJustRevertedSeparator;
-    private int mDeleteCount;
-    private long mLastKeyTime;
-    private int mLastOnKeyCode;
-    private int mKeyPressesCount;
+    private int     mDeleteCount;
+    private long    mLastKeyTime;
+    private int     mLastOnKeyCode;
+    private int     mKeyPressesCount;
     
     private Tutorial mTutorial;
 
     private Vibrator mVibrator;
-    private long mVibrateDuration = 0;
-    private long mVibrateStart;
-    private Timer mVibrateTimer;
-    private boolean mVibrateBugFix;
+    private long     mVibrateDuration = 0;
+    private long     mVibrateStart;
+    private Timer    mVibrateTimer;
+    private boolean  mVibrateBugFix;
 
     private AudioManager mAudioManager;
     // Align sound effect volume on music volume
@@ -198,8 +201,8 @@ public class NorwegianIME extends InputMethodService
     private String mSentenceSeparators;
     
     private String pkgNameLast;
-    private int resIdLast;
-    private int lastKeyPressed;
+    private int    resIdLast;
+    private int    lastKeyPressed;
     private ArrayList<Integer> validKeyCodes;
     private HashMap<Integer, Integer> letterSymbolArray;
     
@@ -244,14 +247,60 @@ public class NorwegianIME extends InputMethodService
         registerReceiver(mReceiver, filter);
     }
     
+    WordComposer getCurrentWord() {
+        return mWord;
+    }
+    
+    /**
+     * Loads a dictionary or multiple separated dictionary
+     * @return returns array of dictionary resource ids
+     */
+    /* package */ /*static int[] getDictionary(Resources res) {
+        String packageName = LatinIME.class.getPackage().getName();
+        XmlResourceParser xrp = res.getXml(R.xml.dictionary);
+        ArrayList<Integer> dictionaries = new ArrayList<Integer>();
+
+        try {
+            int current = xrp.getEventType();
+            while (current != XmlResourceParser.END_DOCUMENT) {
+                if (current == XmlResourceParser.START_TAG) {
+                    String tag = xrp.getName();
+                    if (tag != null) {
+                        if (tag.equals("part")) {
+                            String dictFileName = xrp.getAttributeValue(null, "name");
+                            dictionaries.add(res.getIdentifier(dictFileName, "raw", packageName));
+                        }
+                    }
+                }
+                xrp.next();
+                current = xrp.getEventType();
+            }
+        } catch (XmlPullParserException e) {
+            Log.e(TAG, "Dictionary XML parsing failure");
+        } catch (IOException e) {
+            Log.e(TAG, "Dictionary XML IOException");
+        }
+
+        int count = dictionaries.size();
+        int[] dict = new int[count];
+        for (int i = 0; i < count; i++) {
+            dict[i] = dictionaries.get(i);
+        }
+
+        return dict;
+    }
+    */
+    
     private void initSuggest(String locale, boolean doAll) {
         String pkgName;
         FindDictionary dictionaries = new FindDictionary(this);
         mAvailableDictionaries = dictionaries.getAppNames();
         mAvailableDictionaryValues = dictionaries.getPackageNames();
-        if(mDictionaryManually)
-            pkgName = mDictionary;
+        if(mDictionaryManually){
+            //Log.i(TAG, "Manual Dictionary " + mDictionary);
+            pkgName = mDictionary;}
         else {
+            //Log.i(TAG, "Auto find Dictionary " + mDictionary);
             int index = 0;
             CharSequence[] keyboardLayouts = getResources().getStringArray(R.array.keyboard_layouts_values);
             for (int i = 0; i < keyboardLayouts.length; i++)
@@ -259,12 +308,14 @@ public class NorwegianIME extends InputMethodService
                     index = i;
             pkgName = dictionaries.findPackageName(getResources().getStringArray(R.array.keyboard_layouts)[index]);
         }
-        int resId = dictionaries.getResId(pkgName);
+        //Log.i("IME","Package name:" + pkgName);
+        int resId = 0;//int resId = dictionaries.getResId(pkgName);
 
         if(doAll || pkgName != pkgNameLast) {
             Resources res;
             try {
                 res = getPackageManager().getResourcesForApplication(pkgName);
+                resId = dictionaries.getResId(pkgName, res);
             } catch(NameNotFoundException notFound) {
                 res = getResources();
                 resId = 0;
@@ -272,10 +323,18 @@ public class NorwegianIME extends InputMethodService
             
             if(doAll || resId != resIdLast || (pkgName != pkgNameLast && resId != 0)) {
                 mLocale = locale;
-                mSuggest = new Suggest(this, res, resId); //(this, R.raw.main);
-                mSuggest.setCorrectionMode(mCorrectionMode, mQuickFixes);
-                mUserDictionary = new UserDictionary(this);
-                mAutoDictionary = new AutoDictionary(this);
+                
+                //int[] dictionaries = getDictionary(orig);
+                //mSuggest = new Suggest(this, dictionaries);
+                mSuggest = new Suggest(this, res, resId);
+                mSuggest.setCorrectionMode(mCorrectionMode);
+                mUserDictionary = new UserDictionary(this,mLocale);
+                //mAutoDictionary = new AutoDictionary(this);
+                if (mAutoDictionary != null) {
+                    mAutoDictionary.close();
+                }
+                mAutoDictionary = new AutoDictionary(this, this, mLocale, Suggest.DIC_AUTO);
+                
                 mSuggest.setUserDictionary(mUserDictionary);
                 mSuggest.setAutoDictionary(mAutoDictionary);
                 mWordSeparators = getResources().getString(R.string.word_separators);
@@ -456,7 +515,8 @@ public class NorwegianIME extends InputMethodService
         }
         mInputView.setProximityCorrectionEnabled(true);
         if (mSuggest != null) {
-            mSuggest.setCorrectionMode(mCorrectionMode, mQuickFixes);
+            mSuggest.setCorrectionMode(Suggest.CORRECTION_FULL);
+            //mSuggest.setCorrectionMode(mCorrectionMode, mQuickFixes);
         }
         mPredictionOn = mPredictionOn && mCorrectionMode > 0;
         checkTutorial(attribute.privateImeOptions);
@@ -972,6 +1032,7 @@ public class NorwegianIME extends InputMethodService
     private void updateSuggestions() {
         // Check if we have a suggestion engine attached.
         if (mSuggest == null || !isPredictionOn()) {
+            //Log.i("IME","Suggest is off");
             return;
         }
         
@@ -980,7 +1041,7 @@ public class NorwegianIME extends InputMethodService
             return;
         }
 
-        List<CharSequence> stringList = mSuggest.getSuggestions(mInputView, mWord, false);
+        List<CharSequence> stringList = mSuggest.getSuggestions(mInputView, mWord, false,null);
         boolean correctionAvailable = mSuggest.hasMinimalCorrection();
         //|| mCorrectionMode == mSuggest.CORRECTION_FULL;
         CharSequence typedWord = mWord.getTypedWord();
@@ -1389,7 +1450,7 @@ public class NorwegianIME extends InputMethodService
         mAutoDictionaryEnabled = sp.getBoolean(PREF_AUTO_DICTIONARY_ENABLE, true);
         mAutoDictionaryLimit = Integer.parseInt(sp.getString(PREF_AUTO_DICTIONARY_LIMIT, getResources().getString(R.string.auto_dictionary_limit_default)));
         mAutoDictionaryCaseSensitive = sp.getBoolean(PREF_AUTO_DICTIONARY_CASE_SENSITIVE, false);
-        mAutoDictionary.loadSettings();
+        //mAutoDictionary.loadSettings();
         mSpaceAfterPrediction = sp.getBoolean(PREF_SPACE_AFTER_PREDICTION, true);;
         mSwapColon = sp.getBoolean(PREF_SWAP_COLON, true);
         
@@ -1581,46 +1642,21 @@ public class NorwegianIME extends InputMethodService
         System.out.println("CPS = " + ((CPS_BUFFER_SIZE * 1000f) / total));
     }
 
-    class AutoDictionary extends ExpandableDictionary {
-        // If the user touches a typed word 2 times or more, it will become valid.
-        private int VALIDITY_THRESHOLD = 2 * FREQUENCY_FOR_PICKED;
-        // If the user touches a typed word 5 times or more, it will be added to the user dict.
-        private int PROMOTION_THRESHOLD = 5 * FREQUENCY_FOR_PICKED;
-
-        public AutoDictionary(Context context) {
-            super(context);
-            this.loadSettings();
-        }
-        
-        public void loadSettings() {
-            VALIDITY_THRESHOLD = mAutoDictionaryLimit * FREQUENCY_FOR_PICKED;
-            PROMOTION_THRESHOLD = mAutoDictionaryLimit * FREQUENCY_FOR_PICKED;
-        }
-
-        @Override
-        public boolean isValidWord(CharSequence word) {
-            if(!mAutoDictionaryCaseSensitive)
-                word = word.toString().toLowerCase();
-            final int frequency = getWordFrequency(word);
-            return frequency >= VALIDITY_THRESHOLD;
-        }
-
-        @Override
-        public void addWord(String word, int addFrequency) {
-            if(!mAutoDictionaryCaseSensitive)
-                word = word.toLowerCase();
-            final int length = word.length();
-            // Don't add very short or very long words.
-            if (length < 2 || length > getMaxWordLength()) return;
-            final int freq = getWordFrequency(word);
-            int newFreq = freq == -1 ? addFrequency : freq + addFrequency;
-            super.addWord(word, newFreq);
-            if (newFreq >= PROMOTION_THRESHOLD) {
-                NorwegianIME.this.promoteToUserDictionary(word, FREQUENCY_FOR_AUTO_ADD);
-            }
+    /*
+    private void updateCorrectionMode() {
+        mHasDictionary = mSuggest != null ? mSuggest.hasMainDictionary() : false;
+        mAutoCorrectOn = (mAutoCorrectEnabled || mQuickFixes)
+                && !mInputTypeNoAutoCorrect && mHasDictionary;
+        mCorrectionMode = (mAutoCorrectOn && mAutoCorrectEnabled)
+                ? Suggest.CORRECTION_FULL
+                : (mAutoCorrectOn ? Suggest.CORRECTION_BASIC : Suggest.CORRECTION_NONE);
+        mCorrectionMode = (mBigramSuggestionEnabled && mAutoCorrectOn && mAutoCorrectEnabled)
+                ? Suggest.CORRECTION_FULL_BIGRAM : mCorrectionMode;
+        if (mSuggest != null) {
+            mSuggest.setCorrectionMode(mCorrectionMode);
         }
     }
-    
+    */
     private void createLetterSymbolArray() {
         validKeyCodes = new ArrayList<Integer>();
         letterSymbolArray = new HashMap<Integer, Integer>();

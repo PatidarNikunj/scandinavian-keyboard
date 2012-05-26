@@ -36,6 +36,13 @@ public class WordComposer {
     
     private int mCapsCount;
     
+    private boolean mAutoCapitalized;
+    
+    /**
+     * Whether the user chose to capitalize the first char of the word.
+     */
+    private boolean mIsFirstCharCapitalized;
+    
     /**
      * Whether the user chose to capitalize the word.
      */
@@ -46,11 +53,21 @@ public class WordComposer {
         mTypedWord = new StringBuilder(20);
     }
 
+    WordComposer(WordComposer copy) {
+        mCodes = new ArrayList<int[]>(copy.mCodes);
+        mPreferredWord = copy.mPreferredWord;
+        mTypedWord = new StringBuilder(copy.mTypedWord);
+        mCapsCount = copy.mCapsCount;
+        mAutoCapitalized = copy.mAutoCapitalized;
+        mIsFirstCharCapitalized = copy.mIsFirstCharCapitalized;
+    }
+    
     /**
      * Clear out the keys registered so far.
      */
     public void reset() {
         mCodes.clear();
+        mIsFirstCharCapitalized = false;
         mIsCapitalized = false;
         mPreferredWord = null;
         mTypedWord.setLength(0);
@@ -145,10 +162,47 @@ public class WordComposer {
         return mPreferredWord != null ? mPreferredWord : getTypedWord();
     }
 
+    public void setFirstCharCapitalized(boolean capitalized) {
+        mIsFirstCharCapitalized = capitalized;
+    }
+    
+    /**
+     * Whether or not the user typed a capital letter as the first letter in the word
+     * @return capitalization preference
+     */
+    public boolean isFirstCharCapitalized() {
+        return mIsFirstCharCapitalized;
+    }
+    
+    /**
+     * Whether or not all of the user typed chars are upper case
+     * @return true if all user typed chars are upper case, false otherwise
+     */
+    public boolean isAllUpperCase() {
+        return (mCapsCount > 0) && (mCapsCount == size());
+    }
+    
     /**
      * Returns true if more than one character is upper case, otherwise returns false.
      */
     public boolean isMostlyCaps() {
         return mCapsCount > 1;
+    }
+    
+    /** 
+     * Saves the reason why the word is capitalized - whether it was automatic or
+     * due to the user hitting shift in the middle of a sentence.
+     * @param auto whether it was an automatic capitalization due to start of sentence
+     */
+    public void setAutoCapitalized(boolean auto) {
+        mAutoCapitalized = auto;
+    }
+
+    /**
+     * Returns whether the word was automatically capitalized.
+     * @return whether the word was automatically capitalized
+     */
+    public boolean isAutoCapitalized() {
+        return mAutoCapitalized;
     }
 }
